@@ -40,10 +40,10 @@
    <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>180</x>
       <y>100</y>
-      <width>221</width>
-      <height>171</height>
+      <width>201</width>
+      <height>121</height>
      </rect>
     </property>
    </widget>
@@ -58,6 +58,16 @@
     </property>
     <property name="text">
      <string>Answers will be showcased below</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="plainTextEdit">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>230</y>
+      <width>221</width>
+      <height>21</height>
+     </rect>
     </property>
    </widget>
   </widget>

@@ -23,8 +23,7 @@ void Calculator::on_lineEdit_returnPressed()
     long long ans;
     ui->textBrowser->setText("");
 
-    //TODO: 
-    cambiar la expresion regular para que sea nadamas wtv string y al final el igual, para que el resto sea con tokens, do this after initial testings
+    //TODO: change the regular expression so that the string is only changed to string + =, do this after initial testing
     if(s.contains(QRegExp("^\d{1,12}((\+|-|\*|\/)\d{1,12})*\=|d{1,12}\=|-\d{1,12}((\+|-|\*|\/)\d{1,12})*\=")))
     {
         ans = convert(process,s);

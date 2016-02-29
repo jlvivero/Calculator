@@ -8,6 +8,7 @@
 long long convert(std::vector<Qstring> & process, const Qstring & s)
 {
     long long value;
+    bool negative = false;
     stack<long long> valueStack;
     stack<string> opStack;
     std::string str = s.toStdString();
@@ -29,8 +30,19 @@ long long convert(std::vector<Qstring> & process, const Qstring & s)
             str.erase(0,str.end());
             continue;
         }
+        if(j == 0)
+        {
+            negative = true;
+            continue;
+        }
+
         token = str.substr(0,j);
         value = std::stoll(token,nullptr);
+        if(negative)
+        {
+            value = value * -1;
+            negative = false;
+        }
         valueStack.push(value);
         str.erase(0,j);
         //up to here you get the number and add it to the value

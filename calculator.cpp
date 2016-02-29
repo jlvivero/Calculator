@@ -18,13 +18,19 @@ Calculator::~Calculator()
 void Calculator::on_lineEdit_returnPressed()
 {
     QString s = ui->lineEdit->text();
+    Qstring answer;
     std::vector<QString> process;
     long long ans;
     ui->textBrowser->setText("");
     if(s.contains(QRegExp("^\d{1,12}((\+|-|\*|\/)\d{1,12})*\=|d{1,12}\=|-\d{1,12}((\+|-|\*|\/)\d{1,12})*\=")))
     {
         ans = convert(process,s);
-        ui->textBrowser->setText();
+        for(int i = 0; i < process.size(); i++)
+        {
+            answer = answer + process[i] + "\n"
+        }
+        answer = answer + ans;
+        ui->textBrowser->setText(answer);
     }
     else
     {

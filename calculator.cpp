@@ -24,7 +24,7 @@ void Calculator::on_lineEdit_returnPressed()
     ui->textBrowser->setText("");
 
     //TODO: change the regular expression so that the string is only changed to string + =, do this after initial testing
-    if(s.contains(QRegExp("^\d{1,12}((\+|-|\*|\/)\d{1,12})*\=|d{1,12}\=|-\d{1,12}((\+|-|\*|\/)\d{1,12})*\=")))
+    if(s.contains(QRegExp("^\\d{1,12}((\\+|-|\\*|\\/)\\d{1,12})*\\=|d{1,12}\\=|-\\d{1,12}((\\+|-|\\*|\\/)\\d{1,12})*\\=")))
     {
         ans = convert(process,s);
         for(int i = 0; i < process.size(); i++)

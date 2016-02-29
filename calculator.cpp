@@ -22,6 +22,9 @@ void Calculator::on_lineEdit_returnPressed()
     std::vector<QString> process;
     long long ans;
     ui->textBrowser->setText("");
+
+    //TODO: 
+    cambiar la expresion regular para que sea nadamas wtv string y al final el igual, para que el resto sea con tokens, do this after initial testings
     if(s.contains(QRegExp("^\d{1,12}((\+|-|\*|\/)\d{1,12})*\=|d{1,12}\=|-\d{1,12}((\+|-|\*|\/)\d{1,12})*\=")))
     {
         ans = convert(process,s);

@@ -21,6 +21,7 @@ long long convert(std::vector<Qstring> & process, const Qstring & s)
         char thisOP;
         char pastOP;
         //this assumes that the equation is already validated as having only 12 digits per number, and that the sequence of +/*- etc, are not together
+        //TODO: make a cpp that has all the possible tokens with regex instead of this solution, do this after initial testings
         j = int (str.find_first_of("+-/*()"));
         if(j == -1) //if the last value is an int
         {
@@ -30,9 +31,10 @@ long long convert(std::vector<Qstring> & process, const Qstring & s)
             str.erase(0,str.end());
             continue;
         }
-        if(j == 0)
+        if(j == 0) // if it starts with a negative number
         {
-            negative = true;
+            negative = true
+            str.erase(0,1);
             continue;
         }
 
@@ -50,6 +52,8 @@ long long convert(std::vector<Qstring> & process, const Qstring & s)
         token = str[0];
         //this is just to make sure the switch works fine with a character
         thisOP = token[0];
+
+        //TODO: this might not be needed if i can detect what kind of token it is  with the complimentary cpp i need to do
         switch(thisOP)
         {
             case '+':
@@ -107,9 +111,10 @@ long long convert(std::vector<Qstring> & process, const Qstring & s)
     return value;
 }
 
-//TODO: implement evaluate
+
 long long evaluate(long long value1, long long value2, const char & op, std::vector<Qstring> & process )
 {
+    //TODO: validate that the operations are viable
     QString str;
     switch(op)
     {

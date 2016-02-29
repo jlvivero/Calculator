@@ -10,16 +10,17 @@ Exceptions:
     0 = no problem everything went alright
     1 = divided by 0, big nono
     2 = square root of a negative number big nono
-    3 = unkown Exceptions
+    3 = integer overflow
     4 = syntax error
 */
 
 long long convert(std::vector<QString> & process, const QString & s, int& exception )
 {
-    int error = 0;
     long long value;
     long long val1;
     long long val2;
+    int error = 0;
+    int j = 0;
     bool negative = false;
     bool first = true;
     std::stack<long long> valueStack;
@@ -27,9 +28,8 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
     std::string str = s.toStdString();
     std::string token;
     std::string pastToken;
-    int j = 0;
-    str.pop_back();
 
+    str.pop_back(); //gets rid of the = sign
     while(!str.empty())
     {
         char thisOP;
@@ -62,6 +62,7 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
             first = false;
         }
         first = false;
+
         valueStack.push(value);
         if(j == -1)
         {
@@ -181,12 +182,19 @@ long long evaluate(long long value1, long long value2, const char & op, std::vec
     QString str;
     QString number1 = QString::number(value1);
     QString number2 = QString::number(value2);
+    long long maxNumber = 999999999999;
+
     switch(op)
     {
         case '+':
 
             str = number2 + "+" + number1;
             process.push_back(str);
+            if(value2+value1 > maxNumber)
+            {
+                error = 3;
+                return 0;
+            }
             return value2 + value1;
         case '-':
             str = number2 + "-" + number1;
@@ -195,6 +203,11 @@ long long evaluate(long long value1, long long value2, const char & op, std::vec
         case '*':
             str = number2 + "*" + number1;
             process.push_back(str);
+            if(value2 * value1 > maxNumber)
+            {
+                error = 3;
+                return 0;
+            }
             return value2 * value1;
         case '/':
             //TODO: VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION

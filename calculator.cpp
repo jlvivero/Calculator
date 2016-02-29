@@ -27,7 +27,7 @@ Exceptions:
     0 = no problem everything went alright
     1 = divided by 0, big nono
     2 = square root of a negative number big nono
-    3 = unkown Exceptions
+    3 = integer overflow
     4 = syntax error
 */
 
@@ -62,7 +62,7 @@ void Calculator::on_lineEdit_returnPressed()
                 ui->textBrowser->setText("square root of a negative number, big nono");
                 break;
             case 3:
-                ui->textBrowser->setText("Unknown error");
+                ui->textBrowser->setText("Integer overflow");
                 break;
             case 4:
                 ui->textBrowser->setText("Syntax error");

@@ -29,12 +29,12 @@
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>151</width>
+      <width>251</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Write Equation Below</string>
+     <string>Write equation below without any spaces</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="textBrowser">

@@ -184,6 +184,8 @@ long long evaluate(long long value1, long long value2, const char & op, std::vec
             process.push_back(str);
             return value1 * value2;
         case '/':
+            //TODO: VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
+            //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
             str = value1 + "/" + value2;
             process.push_back(str);
             return value2 / value1;

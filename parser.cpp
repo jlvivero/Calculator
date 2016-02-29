@@ -9,6 +9,8 @@
 long long convert(std::vector<QString> & process, const QString & s)
 {
     long long value;
+    long long val1;
+    long long val2;
     bool negative = false;
     std::stack<long long> valueStack;
     std::stack<std::string> opStack;
@@ -29,7 +31,7 @@ long long convert(std::vector<QString> & process, const QString & s)
             token = str;
             value = std::stoll(token);
             valueStack.push(value);
-            str.erase(0,str.end());
+            str.erase(0);
             continue;
         }
         if(j == 0) // if it starts with a negative number
@@ -58,30 +60,58 @@ long long convert(std::vector<QString> & process, const QString & s)
         switch(thisOP)
         {
             case '+':
-            case '-':
-                while(opStack.size != 0)
+                while(opStack.size() != 0)
                 {
-                    pastToken = opStack.pop();
+                    pastToken = opStack.top();
+                    opStack.pop();
                     pastOP = pastToken[0];
-                    valueStack.push(evaluate(valueStack.pop(),valueStack.pop(),pastOP,process));
+                    val1 = valueStack.top();
+                    valueStack.pop();
+                    val2 = valueStack.top();
+                    valueStack.pop();
+                    valueStack.push(evaluate(val1,val2,pastOP,process));
+                }
+                opStack.push(token);
+                break;
+            case '-':
+                while(opStack.size() != 0)
+                {
+                    pastToken = opStack.top();
+                    opStack.pop();
+                    pastOP = pastToken[0];
+                    val1 = valueStack.top();
+                    valueStack.pop();
+                    val2 = valueStack.top();
+                    valueStack.pop();
+                    valueStack.push(evaluate(val1,val2,pastOP,process));
                 }
                 opStack.push(token);
                 break;
             case '*':
-                while(opStack.size != 0 && opStack.top != '+' && opStack.top != '-')
+                while(opStack.size() != 0 && !opStack.top.compare('+') && !opStack.top.compare('-'))
                 {
-                    pastToken = opStack.pop();
+                    pastToken = opStack.top();
+                    opStack.pop();
                     pastOP = pastToken[0]
-                    valueStack.push(evaluate(valueStack.pop(),valueStack.pop(),pastOP,process));
+                    val1 = valueStack.top();
+                    valueStack.pop();
+                    val2 = valueStack.top();
+                    valueStack.pop();
+                    valueStack.push(evaluate(val1,val2,pastOP,process));
                 }
                 opStack.push(token);
                 break;
             case '/':
-                while(opStack.size != 0 && opStack.top != '+' && opStack.top != '-')
+                while(opStack.size() != 0 && !opStack.top.compare('+') && !opStack.top.compare('-'))
                 {
-                    pastToken = opStack.pop();
-                    pastOP = pastToken;
-                    valueStack.push(evaluate(valueStack.pop(),valueStack.pop(),pastOP,process));
+                    pastToken = opStack.top();
+                    opStack.pop();
+                    pastOP = pastToken[0];
+                    val1 = valueStack.top();
+                    valueStack.pop();
+                    val2 = valueStack.top();
+                    valueStack.pop();
+                    valueStack.push(evaluate(val1,val2,pastOP,process));
                 }
                 opStack.push(token);
                 break;
@@ -89,14 +119,18 @@ long long convert(std::vector<QString> & process, const QString & s)
                 opStack.push(token);
                 break;
             case ')':
-                std::string trash;
                 while(opStack.top != '(')
                 {
-                    pastToken = opStack.pop();
-                    pastOP = pastToken;
-                    valueStack.push(evaluate(valueStack.pop(),valueStack.pop(),pastOP,process));
+                    pastToken = opStack.top();
+                    opStack.pop();
+                    pastOP = pastToken[0];
+                    val1 = valueStack.top();
+                    valueStack.pop();
+                    val2 = valueStack.top();
+                    valueStack.pop();
+                    valueStack.push(evaluate(val1,val2,pastOP,process));
                 }
-                trash = opStack.pop();
+                opStack.pop();
             default: //special case
         }
 
@@ -106,7 +140,11 @@ long long convert(std::vector<QString> & process, const QString & s)
         char thisOP
         token = opStack.pop();
         thisOP = token[0];
-        valueStack.push(evaluate(valueStack.pop(),valueStack.pop(),thisOP,process));
+        val1 = valueStack.top();
+        valueStack.pop();
+        val2 = valueStack.top();
+        valueStack.pop();
+        valueStack.push(evaluate(val1,val2,thisOP,process));
     }
     value = valueStack.pop();
     return value;

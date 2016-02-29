@@ -18,3 +18,5 @@ SOURCES += main.cpp\
 HEADERS  += calculator.h parser.h
 
 FORMS    += calculator.ui
+
+CONFIG += c++11

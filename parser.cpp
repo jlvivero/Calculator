@@ -183,6 +183,7 @@ long long evaluate(long long value1, long long value2, const char & op, std::vec
     QString number1 = QString::number(value1);
     QString number2 = QString::number(value2);
     long long maxNumber = 999999999999;
+    long long minNumber = -999999999999;
 
     switch(op)
     {
@@ -199,6 +200,11 @@ long long evaluate(long long value1, long long value2, const char & op, std::vec
         case '-':
             str = number2 + "-" + number1;
             process.push_back(str);
+            if(value2 - value1 < minNumber)
+            {
+                error = 3;
+                return 0;
+            }
             return value2 - value1;
         case '*':
             str = number2 + "*" + number1;

@@ -2,15 +2,16 @@
 #include <iostream>
 #include <stack>
 #include <QString>
+#include <string>
 
 //TODO: implement the shunting yard algorithm
 
-long long convert(std::vector<Qstring> & process, const Qstring & s)
+long long convert(std::vector<QString> & process, const QString & s)
 {
     long long value;
     bool negative = false;
-    stack<long long> valueStack;
-    stack<string> opStack;
+    std::stack<long long> valueStack;
+    std::stack<std::string> opStack;
     std::string str = s.toStdString();
     std::string token;
     std::string pastToken;
@@ -26,14 +27,14 @@ long long convert(std::vector<Qstring> & process, const Qstring & s)
         if(j == -1) //if the last value is an int
         {
             token = str;
-            value = std::stoll(token,nullptr);
+            value = std::stoll(token);
             valueStack.push(value);
             str.erase(0,str.end());
             continue;
         }
         if(j == 0) // if it starts with a negative number
         {
-            negative = true
+            negative = true;
             str.erase(0,1);
             continue;
         }

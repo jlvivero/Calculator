@@ -18,7 +18,7 @@ Calculator::~Calculator()
 void Calculator::on_lineEdit_returnPressed()
 {
     QString s = ui->lineEdit->text();
-    Qstring answer;
+    QString answer;
     std::vector<QString> process;
     long long ans;
     ui->textBrowser->setText("");
@@ -29,7 +29,7 @@ void Calculator::on_lineEdit_returnPressed()
         ans = convert(process,s);
         for(int i = 0; i < process.size(); i++)
         {
-            answer = answer + process[i] + "\n"
+            answer = answer + process[i] + "\n";
         }
         answer = answer + ans;
         ui->textBrowser->setText(answer);

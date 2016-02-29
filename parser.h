@@ -4,7 +4,7 @@
 #include <vector>
 #include <QString>
 
-long long convert(std::vector<QString> & process, const QString & s);
-long long evaluate(long long value1, long long value2, const char & op, std::vector<QString> & process);
+long long convert(std::vector<QString> & process, const QString & s, int & exception);
+long long evaluate(long long value1, long long value2, const char & op, std::vector<QString> & process, int & error);
 
 #endif

@@ -1,13 +1,22 @@
 #include "parser.h"
+
 #include <iostream>
 #include <stack>
 #include <QString>
 #include <string>
 
-//TODO: implement the shunting yard algorithm
+/*
+Exceptions:
+    0 = no problem everything went alright
+    1 = divided by 0, big nono
+    2 = square root of a negative number big nono
+    3 = unkown Exceptions
+    4 = syntax error
+*/
 
-long long convert(std::vector<QString> & process, const QString & s)
+long long convert(std::vector<QString> & process, const QString & s, int& exception )
 {
+    int error = 0;
     long long value;
     long long val1;
     long long val2;
@@ -80,7 +89,7 @@ long long convert(std::vector<QString> & process, const QString & s)
                     valueStack.pop();
                     val2 = valueStack.top();
                     valueStack.pop();
-                    valueStack.push(evaluate(val1,val2,pastOP,process));
+                    valueStack.push(evaluate(val1,val2,pastOP,process,error));
                 }
                 opStack.push(token);
                 break;
@@ -94,7 +103,7 @@ long long convert(std::vector<QString> & process, const QString & s)
                     valueStack.pop();
                     val2 = valueStack.top();
                     valueStack.pop();
-                    valueStack.push(evaluate(val1,val2,pastOP,process));
+                    valueStack.push(evaluate(val1,val2,pastOP,process,error));
                 }
                 opStack.push(token);
                 break;
@@ -108,7 +117,7 @@ long long convert(std::vector<QString> & process, const QString & s)
                     valueStack.pop();
                     val2 = valueStack.top();
                     valueStack.pop();
-                    valueStack.push(evaluate(val1,val2,pastOP,process));
+                    valueStack.push(evaluate(val1,val2,pastOP,process,error));
                 }
                 opStack.push(token);
                 break;
@@ -122,7 +131,7 @@ long long convert(std::vector<QString> & process, const QString & s)
                     valueStack.pop();
                     val2 = valueStack.top();
                     valueStack.pop();
-                    valueStack.push(evaluate(val1,val2,pastOP,process));
+                    valueStack.push(evaluate(val1,val2,pastOP,process,error));
                 }
                 opStack.push(token);
                 break;
@@ -139,7 +148,7 @@ long long convert(std::vector<QString> & process, const QString & s)
                     valueStack.pop();
                     val2 = valueStack.top();
                     valueStack.pop();
-                    valueStack.push(evaluate(val1,val2,pastOP,process));
+                    valueStack.push(evaluate(val1,val2,pastOP,process,error));
                 }
                 opStack.pop();
                 break;
@@ -157,36 +166,45 @@ long long convert(std::vector<QString> & process, const QString & s)
         valueStack.pop();
         val2 = valueStack.top();
         valueStack.pop();
-        valueStack.push(evaluate(val1,val2,thisOP,process));
+        valueStack.push(evaluate(val1,val2,thisOP,process,error));
     }
     value = valueStack.top();
     valueStack.pop();
+    exception = error;
     return value;
 }
 
 
-long long evaluate(long long value1, long long value2, const char & op, std::vector<QString> & process )
+long long evaluate(long long value1, long long value2, const char & op, std::vector<QString> & process, int & error)
 {
     //TODO: validate that the operations are viable
     QString str;
+    QString number1 = QString::number(value1);
+    QString number2 = QString::number(value2);
     switch(op)
     {
         case '+':
-            str = value1 + "+" + value2;
+
+            str = number2 + "+" + number1;
             process.push_back(str);
-            return value1 + value2;
+            return value2 + value1;
         case '-':
-            str = value1 + "-" + value2;
+            str = number2 + "-" + number1;
             process.push_back(str);
             return value2 - value1;
         case '*':
-            str = value1 + "*" + value2;
+            str = number2 + "*" + number1;
             process.push_back(str);
-            return value1 * value2;
+            return value2 * value1;
         case '/':
             //TODO: VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
             //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
-            str = value1 + "/" + value2;
+            if(value1 == 0)
+            {
+                error = 1;
+                return 0;
+            }
+            str = number2 + "/" + number1;
             process.push_back(str);
             return value2 / value1;
     }

@@ -21,10 +21,9 @@ void Calculator::on_lineEdit_returnPressed()
     std::vector<QString> process;
     long long ans;
     ui->textBrowser->setText("");
-    if(s.contains(QRegExp("^\d{1,12}((\+|-|\*|\/)\d{1,12})*"))) //TODO put regular expresion here
+    if(s.contains(QRegExp("^\d{1,12}((\+|-|\*|\/)\d{1,12})*\=|d{1,12}\=|-\d{1,12}((\+|-|\*|\/)\d{1,12})*\=")))
     {
-        //TODO create class that will change the infix format to the polish notation
-        ans = convert();
+        ans = convert(process,s);
         ui->textBrowser->setText();
     }
     else

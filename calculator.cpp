@@ -1,5 +1,6 @@
 #include "calculator.h"
 #include "ui_calculator.h"
+#include "parser.h"
 #include <QRegExp>
 
 Calculator::Calculator(QWidget *parent) :

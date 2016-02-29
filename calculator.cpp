@@ -1,5 +1,6 @@
 #include "calculator.h"
 #include "ui_calculator.h"
+#include <QRegExp>
 
 Calculator::Calculator(QWidget *parent) :
     QMainWindow(parent),
@@ -19,10 +20,10 @@ void Calculator::on_lineEdit_returnPressed()
     std::vector<QString> process;
     long long ans;
     ui->textBrowser->setText("");
-    if(s.contains("")) //TODO put regular expresion here
+    if(s.contains(QRegExp("^\d{1,12}((\+|-|\*|\/)\d{1,12})*"))) //TODO put regular expresion here
     {
         //TODO create class that will change the infix format to the polish notation
-        //TODO create class that will evaluate the polish notation it will return an answer and a list of Qstrings
+        ans = convert();
         ui->textBrowser->setText();
     }
     else

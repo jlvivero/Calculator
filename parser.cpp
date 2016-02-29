@@ -93,6 +93,20 @@ long long convert(std::vector<Qstring> & process, const Qstring & s)
     }
     value = valueStack.pop();
     return value;
-//TODO: implement evaluate
+}
 
+//TODO: implement evaluate
+long long evaluate(long long value1, long long value2, const char & op)
+{
+    switch(op)
+    {
+        case '+':
+            return value1 + value2;
+        case '-':
+            return value1 - value2;
+        case '*':
+            return value1 * value2;
+        case '/':
+            return value1 / value2;
+    }
 }

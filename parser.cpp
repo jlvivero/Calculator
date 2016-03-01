@@ -29,39 +29,49 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
     std::string token;
     std::string pastToken;
 
-    str.pop_back(); //gets rid of the = sign
+    //str.pop_back(); //gets rid of the = sign
     while(!str.empty())
     {
         char thisOP;
         char pastOP;
         //this assumes that the equation is already validated as having only 12 digits per number, and that the sequence of +/*- etc, are not together
         //TODO: make a cpp that has all the possible tokens with regex instead of this solution, do this after initial testings
-        j = int (str.find_first_of("+-/*()"));
-        if(j == 0) // if it starts with a negative number
+        size_t found = str.find_first_of("+-/*()");
+        if(found == std::string::npos)
         {
-            negative = true;
-            str.erase(0,1);
-            j = int (str.find_first_of("+-/*()"));
-        }
-
-        if(j == -1)
-        {
-            token = str;
+            j == -1;
         }
         else
         {
-        token = str.substr(0,j);
+            j = int (found);
         }
-
-        value = std::stoll(token,nullptr);
-
-        if(negative && first)
+        if(j == 0) // if it starts with a negative number
         {
+            str.erase(0,1);
+            j = int (str.find_first_of("+-/*()"));
+            if(j == -1)
+            {
+                token = str;
+            }
+            else
+            {
+                token = str.substr(0,j);
+            }
+            value = std::stoll(token,nullptr);
             value = value * -1;
-            negative = false;
-            first = false;
         }
-        first = false;
+        else
+        {
+            if(j == -1)
+            {
+                token = str;
+            }
+            else
+            {
+                token = str.substr(0,j);
+            }
+            value = std::stoll(token,nullptr);
+        }
 
         valueStack.push(value);
         if(j == -1)
@@ -70,13 +80,14 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
         }
         else
         {
-        str.erase(0,j);
+            str.erase(0,j);
         }
         //up to here you get the number and add it to the value
 
         token = str[0];
         //this is just to make sure the switch works fine with a character
         thisOP = token[0];
+        str.erase(0,1);
         //TODO: this might not be needed if i can detect what kind of token it is  with the complimentary cpp i need to do
         switch(thisOP)
         {
@@ -153,7 +164,9 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
                 }
                 opStack.pop();
                 break;
-            default: break;//special case
+            default:
+
+                break;//special case
         }
     }//TODO: use regex properly to check if the string is a number
 

@@ -1,6 +1,7 @@
 #include "calculator.h"
 #include "ui_calculator.h"
 #include "parser.h"
+#include "basec.h"
 
 #include <QRegExp>
 #include <iostream>
@@ -34,10 +35,12 @@ Exceptions:
 void Calculator::on_lineEdit_returnPressed()
 {
     int exception = 0;
+    long long ans;
+    std::string b2;
+    std::string b16;
     QString s = ui->lineEdit->text();
     QString answer;
     std::vector<QString> process;
-    long long ans;
     ui->plainTextEdit->setPlainText("");
     ui->textBrowser->setText("");
 
@@ -55,6 +58,11 @@ void Calculator::on_lineEdit_returnPressed()
                 {
                     answer = answer + process[i] + "\n";
                 }
+                b2 = base2(ans);
+                b16 = base16(ans);
+                answer = answer + "\n";
+                answer = answer + "base2: " + QString::fromStdString(b2) + "\n";
+                answer = answer + "base16: " + QString::fromStdString(b16) + "\n";
                 ui->textBrowser->setText(answer);
                 ui->plainTextEdit->setPlainText(std::to_string(ans).c_str());
                 break;

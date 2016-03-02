@@ -14,15 +14,13 @@ Exceptions:
     4 = syntax error
 */
 
-long long convert(std::vector<QString> & process, const QString & s, int& exception )
+long long convert(std::vector<QString> & process, const QString & s, int& exception)
 {
     long long value;
     long long val1;
     long long val2;
     int error = 0;
     int j = 0;
-    bool negative = false;
-    bool first = true;
     std::stack<long long> valueStack;
     std::stack<std::string> opStack;
     std::string str = s.toStdString();
@@ -129,7 +127,8 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
                 opStack.push(token);
                 break;
             case '*':
-                while(opStack.size() != 0 && !opStack.top().compare("+") && !opStack.top().compare("-"))
+                while(opStack.size() != 0 && opStack.top() != "+" && opStack.top() != "-")
+                //opStack.top().compare("+") && opStack.top().compare("-"))
                 {
                     pastToken = opStack.top();
                     opStack.pop();
@@ -143,7 +142,7 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
                 opStack.push(token);
                 break;
             case '/':
-                while(opStack.size() != 0 && !opStack.top().compare("+") && !opStack.top().compare("-"))
+                while(opStack.size() != 0 && opStack.top() != "+" && opStack.top() != "-")
                 {
                     pastToken = opStack.top();
                     opStack.pop();
@@ -160,7 +159,7 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
                 opStack.push(token);
                 break;
             case ')':
-                while(!opStack.top().compare("("))
+                while(opStack.top() != "(")
                 {
                     pastToken = opStack.top();
                     opStack.pop();

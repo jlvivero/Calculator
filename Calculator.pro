@@ -13,9 +13,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        calculator.cpp parser.cpp
+        calculator.cpp parser.cpp basec.cpp
 
-HEADERS  += calculator.h parser.h
+HEADERS  += calculator.h parser.h basec.h
 
 FORMS    += calculator.ui
 

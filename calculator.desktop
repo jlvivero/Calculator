@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Calculator
+Comment=My calculator
+Exec=/home/jl/compile/C++proyects/calc/build-Calculator-Desktop-Release
+Icon=calculator.png
+Terminal=false
+Status API Training Shop Blog About Pricing

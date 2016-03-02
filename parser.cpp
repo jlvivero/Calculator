@@ -30,13 +30,19 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
     std::string pastToken;
 
     //str.pop_back(); //gets rid of the = sign
+    size_t equals = str.find_first_of("=");
+    if(equals != std::string::npos)
+    {
+        str.erase(equals+1);
+    }
+    //str.erase(equals);
     while(!str.empty())
     {
         char thisOP;
         char pastOP;
         //this assumes that the equation is already validated as having only 12 digits per number, and that the sequence of +/*- etc, are not together
         //TODO: make a cpp that has all the possible tokens with regex instead of this solution, do this after initial testings
-        size_t found = str.find_first_of("+-/*()");
+        size_t found = str.find_first_of("+-/*()=");
         if(found == std::string::npos)
         {
             j == -1;
@@ -48,7 +54,7 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
         if(j == 0) // if it starts with a negative number
         {
             str.erase(0,1);
-            j = int (str.find_first_of("+-/*()"));
+            j = int (str.find_first_of("+-/*()="));
             if(j == -1)
             {
                 token = str;
@@ -83,7 +89,10 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
             str.erase(0,j);
         }
         //up to here you get the number and add it to the value
-
+        if(str.empty())
+        {
+            continue;
+        }
         token = str[0];
         //this is just to make sure the switch works fine with a character
         thisOP = token[0];
@@ -165,7 +174,8 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
                 opStack.pop();
                 break;
             default:
-
+                /*size_t equals = str.find_first_of("=");
+                str.erase(equals);*/
                 break;//special case
         }
     }//TODO: use regex properly to check if the string is a number

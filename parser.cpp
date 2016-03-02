@@ -76,7 +76,6 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
             }
             value = std::stoll(token,nullptr);
         }
-
         valueStack.push(value);
         if(j == -1)
         {
@@ -86,6 +85,8 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
         {
             str.erase(0,j);
         }
+
+
         //up to here you get the number and add it to the value
         if(str.empty())
         {
@@ -95,6 +96,7 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
         //this is just to make sure the switch works fine with a character
         thisOP = token[0];
         str.erase(0,1);
+
         //TODO: this might not be needed if i can detect what kind of token it is  with the complimentary cpp i need to do
         switch(thisOP)
         {

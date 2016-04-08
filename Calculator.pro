@@ -20,3 +20,4 @@ HEADERS  += calculator.h parser.h basec.h
 FORMS    += calculator.ui
 
 CONFIG += c++11
+

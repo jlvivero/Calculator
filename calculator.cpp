@@ -13,6 +13,9 @@ Calculator::Calculator(QWidget *parent) :
 {
     ui->setupUi(this);
     //idk if anything i put after this is supposed to be here
+    //this is specifically for my OS ubuntu with numix, i was having problems adapting the gtk delete this next line if you
+    // want to use the default theming on your OS
+    this->setStyleSheet("background-color: #2d2d2d; border: 1px solid rgba(51, 51, 51, 1); color: #dcdcdc; gridline-color: #2d2d2d;");
     QObject::connect(ui->lineEdit, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
     ui->plainTextEdit->setReadOnly(true);
 }

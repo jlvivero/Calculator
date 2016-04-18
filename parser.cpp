@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "tokenize.h"
 
 #include <iostream>
 #include <stack>
@@ -16,6 +17,7 @@ Exceptions:
 
 long long convert(std::vector<QString> & process, const QString & s, int& exception)
 {
+
     long long value;
     long long val1;
     long long val2;
@@ -23,9 +25,13 @@ long long convert(std::vector<QString> & process, const QString & s, int& except
     int j = 0;
     std::stack<long long> valueStack;
     std::stack<std::string> opStack;
-    std::string str = s.toStdString();
     std::string token;
     std::string pastToken;
+    std::string str = s.toStdString();
+
+    std::std::vector<std::string> v;
+    v = regex(str);
+
 
     //str.pop_back(); //gets rid of the = sign
     size_t equals = str.find_first_of("=");

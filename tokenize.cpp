@@ -2,10 +2,11 @@
 #include <regex>
 #include <iterator>
 #include <iostream>
+#include <string>
 
 std::vector<std::string> regex(const std::string & infix_op)
 {
-  std::regex tokenize("(\\d+\\.?(E-|[^*+/\\^ ()=-])*|\\+|-|\\*|/|\\(|\\)|=|\\^|[^\\s=]+)|([a-zA-Z](E-|[^*+/\\^ ()=-])*|\\+|-|\\*|/|\\(|\\)|=|\\^|[^\\s=]+)");
+  std::regex tokenize("\\d+\\.?(E-|[^*+/\\^ ()=-])*|\\+|-|\\*|/|\\(|\\)|=|\\^|[^\\s=]");
 
   auto words_begin = std::sregex_iterator(infix_op.begin(), infix_op.end(), tokenize);
   auto words_end = std::sregex_iterator();

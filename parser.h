@@ -1,10 +1,15 @@
 #ifndef PARSER_H
 #define PARSER_H
+#include "tokenize.h"
+#include "rNumber.h"
 
 #include <vector>
 #include <QString>
+#include <iostream>
+#include <stack>
+#include <string>
 
-long long convert(std::vector<QString> & process, const QString & s, int & exception);
-long long evaluate(long long value1, long long value2, const char & op, std::vector<QString> & process, int & error);
+rNumber convert(std::vector<QString> & process, const QString & s, int & exception);
+rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QString> & process, int & error);
 
 #endif

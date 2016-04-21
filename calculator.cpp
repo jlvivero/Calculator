@@ -2,12 +2,16 @@
 #include "ui_calculator.h"
 #include "parser.h"
 #include "basec.h"
+#include "decimal.h"
 //#include "rNumber.h"
 
 
 #include <QRegExp>
 #include <iostream>
 #include <string>
+dec::decimal<8> ad(0);
+rNumber a(ad,0,false);
+rNumber b(ad,0,false);
 
 Calculator::Calculator(QWidget *parent) :
     QMainWindow(parent),
@@ -49,7 +53,7 @@ void Calculator::on_lineEdit_returnPressed()
     ui->plainTextEdit->setPlainText("");
     ui->textBrowser->setText("");
 
-    ans.copy(convert(process,s,exception));
+    ans.copy(convert(process,s,exception,a,b));
     switch(exception)
     {
         case 0:
@@ -76,6 +80,12 @@ void Calculator::on_lineEdit_returnPressed()
             break;
         case 4:
             ui->textBrowser->setText("Syntax error");
+            break;
+        case 5:
+            ui->textBrowser->setText("unmatched parenthesis");
+            break;
+        case 6:
+            ui->textBrowser->setText("variable not defined");
             break;
     }
     /*

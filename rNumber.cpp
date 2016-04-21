@@ -3,6 +3,7 @@
 #include "validateTokens.h"
 #include <iostream>
 #include <string>
+#include <cmath>
 
 
 rNumber::rNumber()
@@ -21,6 +22,13 @@ rNumber::rNumber(dec::decimal<8> number1, int number2)
     error = false;
 }
 
+rNumber::rNumber(dec::decimal<8> number1, int number2, bool error)
+{
+    this->number1 = number1;
+    this->number2 = number2;
+    this->error = error;
+}
+
 rNumber::rNumber(const rNumber & n)
 {
     number1 = n.number1;
@@ -33,19 +41,30 @@ void rNumber::reduce()
     dec::decimal<8> temp(10);
     dec::decimal<8> temp2(1);
     dec::decimal<8> useless(0);
+    dec::decimal<8> temp3;
     if(number1 == useless)
     {
         number2 = 0;
         return;
     }
-    while(number1 > temp)
+    if(number1 < useless)
+    {
+        temp3 = number1 * dec::decimal_cast<8>(-1);
+    }
+    else
+    {
+        temp3 = number1;
+    }
+    while(temp3 > temp)
     {
         number1 = number1 / dec::decimal_cast<8>(10);
+        temp3 = temp3/ dec::decimal_cast<8>(10);
         number2++;
     }
-    while(number1 < temp2)
+    while(temp3 < temp2)
     {
         number1 = number1 * dec::decimal_cast<8>(10);
+        temp3 = temp3 * dec::decimal_cast<8>(10);
         number2--;
     }
     if(number2 > 99 || number2 < -99)
@@ -86,8 +105,15 @@ void rNumber::parseExponent(std::string s)
     //number1(decimalPart);
     //number1 = number1.fromString(decimalPart);
     //number1 = dummystuff;
-    dec::fromString(decimalPart,number1);
-    number2 = std::stoi(exponentPart,nullptr);
+    if(exponentPart.size() > 0)
+    {
+        dec::fromString(decimalPart,number1);
+        number2 = std::stoi(exponentPart,nullptr);
+    }
+    else
+    {
+        error = true;
+    }
     if(number2 > 99)
     {
         error = true;
@@ -151,7 +177,7 @@ bool rNumber::extend()
                 significantFigures = 0;
             }
         }
-        if(significantFigures + number2 <= 8)
+        if(significantFigures + (number2*-1) <= 8)
         {
             while(number2 < 0)
             {
@@ -197,18 +223,149 @@ std::string rNumber::printNumber()
 {
     if(extend())
     {
-        //not sure if this is how it works
-        //the number1.toString(number1,value) THING
+        int c = 0;
+        int d = 0;
+        int b = 0;
+        bool found = false;
+        bool found2 = false;
         std::string value;
-        //number1.toString(number1,value);
         dec::toString(number1,value);
+        for(int i = 0; i < value.size(); i ++)
+        {
+            if(value[i] == '.')
+            {
+                found = true;
+            }
+            else
+            {
+                b++;
+                if(found)
+                {
+                    c++;
+                }
+            }
+        }
+
+        if(b > 8)
+        {
+            d = 0;
+            while(c > 0)
+            {
+                if(b <= 8)
+                    break;
+                b--;
+                c--;
+                d++;
+            }
+        }
+
+        std::string fixedValue = "";
+        for(int i = 0; i < (value.size() - d); i++)
+        {
+            fixedValue = fixedValue + value[i];
+        }
+
+        value = "";
+        d = 0;
+        for(int i = (fixedValue.size() - 1); i >= 0; i--)
+        {
+            if(fixedValue[i] == '0' && found)
+            {
+                d++;
+            }
+            else
+            {
+                if(fixedValue[i] == '.')
+                {
+                    found2 = true;
+                }
+                else
+                {
+                    found2 = false;
+                }
+                break;
+            }
+
+        }
+        if(found2){d++;}
+        for(int i = 0; i < (fixedValue.size() - d); i++)
+        {
+            value = value + fixedValue[i];
+        }
         return value;
     }
     else
     {
+        int c = 0;
+        int d = 0;
+        int b = 0;
+        bool found = false;
+        bool found2 = false;
         std::string value;
-        //number1.toString(number1,value);
         dec::toString(number1,value);
+        for(int i = 0; i < value.size(); i ++)
+        {
+            if(value[i] == '.')
+            {
+                found = true;
+            }
+            else
+            {
+                b++;
+                if(found)
+                {
+                    c++;
+                }
+            }
+        }
+
+        if(b > 8)
+        {
+            d = 0;
+            while(c > 0)
+            {
+                if(b <= 8)
+                    break;
+                b--;
+                c--;
+                d++;
+            }
+        }
+
+        std::string fixedValue = "";
+        for(int i = 0; i < (value.size() - d); i++)
+        {
+            fixedValue = fixedValue + value[i];
+        }
+
+        value = "";
+        d = 0;
+        for(int i = (fixedValue.size() - 1); i >= 0; i--)
+        {
+            if(fixedValue[i] == '0' && found)
+            {
+                d++;
+            }
+            else
+            {
+                if(fixedValue[i] == '.')
+                {
+                    found2 = true;
+                }
+                else
+                {
+                    found2 = false;
+                }
+                break;
+            }
+
+        }
+        if(found2){d++;}
+        for(int i = 0; i < (fixedValue.size() - d); i++)
+        {
+            value = value + fixedValue[i];
+        }
+
         value = value + "E";
         value = value + std::to_string(number2);
         return value;
@@ -278,7 +435,9 @@ rNumber rNumber::substract(rNumber second)
         }
         else
         {
-            match(second.getN2());
+            if(!number2 == second.getN2())
+                match(second.getN2());
+            else
             hold = number1 - second.getN1();
             rNumber temp(hold,second.getN2());
             temp.reduce();
@@ -306,10 +465,59 @@ rNumber rNumber::divide(rNumber second)
     return temp;
 }
 
+//IM A FUCKING CHITERO
 rNumber rNumber::exponent(rNumber second)
 {
-    //TODO: IMPLEMENT EXPONENT METHOD
-    return second;
+    dec::decimal<8> fuck = second.getN1();
+    double fuckMyLife = fuck.getAsDouble();
+    int absolute = second.getN2();
+    if(absolute < 0){absolute = absolute * -1;}
+
+    for(int i = 0; i < absolute; i++)
+    {
+        if(second.getN2() < 0)
+            fuckMyLife = fuckMyLife / 10;
+        else
+            fuckMyLife = fuckMyLife * 10;
+    }
+
+    double leftOperand = number1.getAsDouble();
+    absolute = number2;
+    if(absolute < 0){ absolute = absolute * -1;}
+    for(int i = 0; i < absolute; i++)
+    {
+        if(number2 < 0)
+            leftOperand = leftOperand / 10;
+        else
+            leftOperand = leftOperand * 10;
+    }
+    double imCheating;
+    /*if(leftOperand == 0 && fuckMyLife == 0)
+    {
+
+        rNumber failure(dec::decimal_cast<8>(0),0,true);
+        return failure;
+    }*/
+    /*if(leftOperand < 0)
+    {
+        rNumber failure(dec::decimal_cast<8>(0),0,true);
+        return failure;
+    }*/
+    imCheating = pow(leftOperand,fuckMyLife);
+    if(std::isnan(imCheating) || std::isinf(imCheating))
+    {
+        if(std::isinf(imCheating))
+        {
+            rNumber failure(dec::decimal_cast<8>(1),0,true);
+            return failure;
+        }
+        rNumber failure(dec::decimal_cast<8>(0),0,true);
+        return failure;
+    }
+    dec::decimal<8> mylife(imCheating);
+    rNumber temp(mylife,0);
+    temp.reduce();
+    return temp;
 }
 
 void rNumber::negate()

@@ -18,6 +18,7 @@ public:
     rNumber();
     rNumber(dec::decimal<8> number1, int number2);
     rNumber(const rNumber & n);
+    rNumber(dec::decimal<8> number1, int number2, bool error);
     void reduce();
     void parseExponent(std::string s);
     void match(int n);
@@ -29,7 +30,7 @@ public:
     rNumber substract(rNumber second);
     rNumber multiply(rNumber second);
     rNumber divide(rNumber second);
-    rNumber exponent(rNumber second);
+    rNumber exponent(rNumber n);
     void negate();
     dec::decimal<8> getN1();
     int getN2();

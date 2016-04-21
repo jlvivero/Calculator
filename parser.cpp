@@ -16,9 +16,11 @@ Exceptions:
     2 = square root of a negative number big nono
     3 = integer overflow
     4 = syntax error
+    5 = unmatched parenthesis
+    6 = variable not defined
 */
 
-rNumber convert(std::vector<QString> & process, const QString & s, int& exception)
+rNumber convert(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b)
 {
     //these variables will be changed to numbers probably the real numbers class ill make
     bool addToken = false;
@@ -29,8 +31,6 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
     int error = 0;
     char thisOp;
     char pastOp;
-    rNumber a;
-    rNumber b;
     rNumber val1;
     rNumber val2;
     //rnumber a*;
@@ -53,6 +53,20 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
     int past = 0;
 
     v = regex(str);
+    int c = 0;
+    for(int i = 0; i < v.size(); i++)
+    {
+        if(v[i] == "(")
+            c++;
+        if(v[i] == ")")
+            c--;
+
+    }
+    if(c!= 0)
+    {
+        exception = 5;
+        return falseReturn;
+    }
 
     for(int i = 0; i < v.size(); i++)
     {
@@ -63,6 +77,11 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
             {
                 if(isrNumber(v[i+1]))
                 {
+                    addToken = true;
+                    token = v[i];
+                    thisOp = token[0];
+                    past = 3;
+                    /*
                     token = v[i+1];
                     value.parse(token);
                     value.negate();
@@ -74,9 +93,9 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                     }
                     else
                     {
-                        exception = 3;
+                        exception = 4;
                         return falseReturn;
-                    }
+                    }*/
 
                     //insert in stack
                 }
@@ -104,8 +123,18 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                     else
                     {
                         //if it's not a number or a variable it means that there's an error, might need to add an exception with parenthesis
-                        exception = 4;
-                        return falseReturn;
+                        if(v[i+1] == "(")
+                        {
+                            addToken = true;
+                            token = v[i];
+                            thisOp = token[0];
+                            past = 3;
+                        }
+                        else
+                        {
+                            exception = 4;
+                            return falseReturn;
+                        }
                     }
                 }
             }
@@ -129,9 +158,20 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                 }
                 if(isOp(v[i]))
                 {
-                    //you can't start with an operator, might need to add an exception to parenthesis
-                    exception = 4;
-                    return falseReturn;
+                    if(v[i] == "(" )
+                    {
+                        addToken = true;
+                        token = v[i];
+                        thisOp = token[0];
+                        past = 3;
+                    }
+                    else
+                    {
+                        //you can't start with an operator, might need to add an exception to parenthesis
+                        exception = 4;
+                        return falseReturn;
+                    }
+
                 }
                 if(isVariable(v[i]))
                 {   //if it's variable just push the value of said variable
@@ -174,10 +214,23 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
             {
                 if(v[i] == "a" || v[i] == "A")
                 {
-                    valueStack.push(a);
+                    if(a.gerror())
+                    {
+                        exception = 6;
+                        return falseReturn;
+                    }
+                    else
+                    {
+                        valueStack.push(a);
+                    }
                 }
                 else
                 {
+                    if(b.gerror())
+                    {
+                        exception = 6;
+                        return falseReturn;
+                    }
                     valueStack.push(b);
                 }
                 past = 2;
@@ -192,19 +245,49 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                     {
                         if(isrNumber(v[i+1]))
                         {
-                            token = v[i+1];
-                            value.parse(token);
-                            value.negate();
-                            if(value.gerror())
+                            if((i+2) < v.size())
                             {
-                                valueStack.push(value);
-                                i++;
-                                past = 1;
+                                if(v[i+2] == "^")
+                                {
+                                    addToken = true;
+                                    token = v[i];
+                                    thisOp = token[0];
+                                    past = 3;
+                                }
+                                else
+                                {
+                                    token = v[i+1];
+                                    value.parse(token);
+                                    value.negate();
+                                    if(!value.gerror())
+                                    {
+                                        valueStack.push(value);
+                                        i++;
+                                        past = 1;
+                                    }
+                                    else
+                                    {
+                                        exception = 3;
+                                        return falseReturn;
+                                    }
+                                }
                             }
                             else
                             {
-                                exception = 3;
-                                return falseReturn;
+                                token = v[i+1];
+                                value.parse(token);
+                                value.negate();
+                                if(!value.gerror())
+                                {
+                                    valueStack.push(value);
+                                    i++;
+                                    past = 1;
+                                }
+                                else
+                                {
+                                    exception = 3;
+                                    return falseReturn;
+                                }
                             }
                         }
                         else
@@ -213,18 +296,45 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                             //need to make exception if it's a parenthesis
                             if(isOp(v[i+1]))
                             {
-                                exception = 4;
-                                return falseReturn;
+                                if(v[i+1] == "(")
+                                {
+                                    addToken = true;
+                                    token = v[i];
+                                    thisOp = token[0];
+                                    past = 3;
+                                }
+                                else
+                                {
+                                    exception = 4;
+                                    return falseReturn;
+
+                                }
                             }
                             if(isVariable(v[i+1]))
                             {
                                 if(v[i] == "a" || v[i] == "A")
                                 {
-                                    valueStack.push(a);
+                                    if(a.gerror())
+                                    {
+                                        exception = 6;
+                                        return falseReturn;
+                                    }
+                                    else
+                                    {
+                                        valueStack.push(a);
+                                    }
                                 }
                                 else
                                 {
-                                    valueStack.push(b);
+                                    if(b.gerror())
+                                    {
+                                        exception = 6;
+                                        return falseReturn;
+                                    }
+                                    else
+                                    {
+                                        valueStack.push(b);
+                                    }
                                 }
                                 past = 2;
                             }
@@ -238,10 +348,18 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                     }
                     else
                     {
-                        // I think this is wrong
-                        addToken = true;
-                        token = v[i];
-                        thisOp = token[0];
+                        if(v[i] == "(")
+                        {
+                            addToken = true;
+                            token = v[i];
+                            thisOp = token[0];
+                            past = 3;
+                        }
+                        else
+                        {
+                            exception = 4;
+                            return falseReturn;
+                        }
                     }
                 }
                 else
@@ -250,6 +368,7 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                     addToken = true;
                     token = v[i];
                     thisOp = token[0];
+                    past = 3;
                 }
 
             }
@@ -268,6 +387,11 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                 }
                 break;
             }
+            if(noMatch(v[i]))
+            {
+                exception = 4;
+                return falseReturn;
+            }
         }
 
         if(addToken)
@@ -276,7 +400,7 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
             {
                 case '+':
                 //if(past == 3 && pastToken != "-")
-                while(opStack.size() != 0)
+                while(opStack.size() != 0 && opStack.top() != "(" && opStack.top() != ")")
                 {
                     pastToken = opStack.top();
                     opStack.pop();
@@ -291,22 +415,31 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                 opStack.push(token);
                 break;
                 case '-':
-                while(opStack.size() != 0)
+                while(opStack.size() != 0 && opStack.top() != "(" && opStack.top() != ")")
                 {
                     pastToken = opStack.top();
                     opStack.pop();
                     pastOp = pastToken[0];
                     val1.copy(valueStack.top());
                     valueStack.pop();
-                    val2.copy(valueStack.top());
-                    valueStack.pop();
-                    valueStack.push(evaluate(val1,val2,pastOp,process,error));
+                    if(valueStack.size() != 0)
+                    {
+                        val2.copy(valueStack.top());
+                        valueStack.pop();
+                        valueStack.push(evaluate(val1,val2,pastOp,process,error));
+                    }
+                    else
+                    {
+                        val2.parse("0");
+                        valueStack.push(evaluate(val1,val2,pastOp,process,error));
+                    }
+
                 }
                 past = 3;
                 opStack.push(token);
                 break;
                 case '*':
-                while(opStack.size() != 0 && opStack.top() != "+" && opStack.top() != "-")
+                while(opStack.size() != 0 && opStack.top() != "+" && opStack.top() != "-" && opStack.top() != "(" && opStack.top() != ")")
                 {
                     pastToken = opStack.top();
                     opStack.pop();
@@ -321,7 +454,7 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                 opStack.push(token);
                 break;
                 case '/':
-                while(opStack.size() != 0 && opStack.top() != "+" && opStack.top() != "-")
+                while(opStack.size() != 0 && opStack.top() != "+" && opStack.top() != "-" && opStack.top() != "(" && opStack.top() != ")")
                 {
                     pastToken = opStack.top();
                     opStack.pop();
@@ -341,6 +474,43 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                 case ')':
                 while(opStack.top() != "(")
                 {
+                    if(opStack.size() == 0)
+                    {
+                        exception = 3;
+                        return falseReturn;
+                    }
+                    pastToken = opStack.top();
+                    opStack.pop();
+                    pastOp = pastToken[0];
+                    if(valueStack.size() != 0)
+                    {
+                        val1.copy(valueStack.top());
+                        valueStack.pop();
+                    }
+                    else
+                    {
+                        exception = 3;
+                        return falseReturn;
+                    }
+                    if(valueStack.size() != 0)
+                    {
+                        val2.copy(valueStack.top());
+                        valueStack.pop();
+                    }
+                    else
+                    {
+                        exception = 3;
+                        return falseReturn;
+                    }
+                    valueStack.push(evaluate(val1,val2,pastOp,process,error));
+                }
+                past = 4;
+                opStack.pop();
+                break;
+                case '^':
+                //if(past == 3 && pastToken != "-")
+                while(opStack.size() != 0 && opStack.top() != "(" && opStack.top() != ")" && opStack.top() != "+" && opStack.top() != "-" && opStack.top() != "*" && opStack.top() != "/")
+                {
                     pastToken = opStack.top();
                     opStack.pop();
                     pastOp = pastToken[0];
@@ -350,9 +520,8 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                     valueStack.pop();
                     valueStack.push(evaluate(val1,val2,pastOp,process,error));
                 }
-                past = 4;
-                opStack.pop();
-                break;
+                past = 3;
+                opStack.push(token);
                 default:
                 /*size_t equals = str.find_first_of("=");
                 str.erase(equals);*/
@@ -372,8 +541,15 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
         thisOP = token[0];
         val1.copy(valueStack.top());
         valueStack.pop();
-        val2.copy(valueStack.top());
-        valueStack.pop();
+        if(valueStack.size() == 0)
+        {
+            val2.parse("0");
+        }
+        else
+        {
+            val2.copy(valueStack.top());
+            valueStack.pop();
+        }
         valueStack.push(evaluate(val1,val2,thisOP,process,error));
     }
     value.copy(valueStack.top());
@@ -404,9 +580,10 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
     switch(op)
     {
         case '+':
+        {
             str = number2 + "+" + number1;
             process.push_back(str);
-            maxNumber.copy(value2.add(value1));
+            maxNumber = value2.add(value1);
             if(maxNumber.getN2() > 99 || maxNumber.getN2() < -99)
             {
                 error = 3;
@@ -415,10 +592,12 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
                 return maxNumber;
             }
             return maxNumber;
+        }
         case '-':
+        {
             str = number2 + "-" + number1;
             process.push_back(str);
-            maxNumber.copy(value2.substract(value1));
+            maxNumber = value2.substract(value1);
             if(maxNumber.getN2() > 99 || maxNumber.getN2() < -99)
             {
                 error = 3;
@@ -427,10 +606,11 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
                 return maxNumber;
             }
             return maxNumber;
+        }
         case '*':
             str = number2 + "*" + number1;
             process.push_back(str);
-            maxNumber.copy(value2.multiply(value1));
+            maxNumber = value2.multiply(value1);
             if(maxNumber.getN2() > 99 || maxNumber.getN2() < -99)
             {
                 error = 3;
@@ -440,6 +620,7 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
             }
             return maxNumber;
         case '/':
+        {
             dec::decimal<8> n(0);
             //TODO: VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
             //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
@@ -453,6 +634,41 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
             str = number2 + "/" + number1;
             process.push_back(str);
             return value2.divide(value1);
+        }
+        case '(':
+        {
+            error = 3;
+            dec::decimal<8> trash(0);
+            rNumber trashy(trash,0);
+            return trashy;
+            break;
+        }
+        case '^':
+        {
+            //dec::decimal<8> n(0);
+            //TODO: VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
+            //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
+            str = number2 + "^" + number1;
+            process.push_back(str);
+            maxNumber = value2.exponent(value1);
+            if(maxNumber.gerror())
+            {
+                if(maxNumber.getN1() == dec::decimal_cast<8>(1))
+                {
+                    error = 3;
+                    dec::decimal<8> trash(0);
+                    rNumber trashy(trash,0);
+                    return trashy;
+                }
+                error = 2;
+                dec::decimal<8> trash(0);
+                rNumber trashy(trash,0);
+                return trashy;
+            }
+            return maxNumber;
+            break;
+        }
+
     }
     return maxNumber;
 }

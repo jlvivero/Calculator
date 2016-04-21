@@ -25,7 +25,7 @@ bool isOp(std::string s)
 
 bool isExp(std::string s)
 {
-    return std::regex_match(s,std::regex("\\d+\\.?(E-|E)\\d"));
+    return std::regex_match(s,std::regex("(\\d+(E-|E)\\d+)|(\\d+\\.?\\d+(E-|E)\\d+)"));
 }
 
 bool isVariable(std::string s)
@@ -35,7 +35,7 @@ bool isVariable(std::string s)
 
 bool noMatch(std::string s)
 {
-    return !(isrNumber(s)|| isOp(s)|| isVariable);
+    return !(isrNumber(s)|| isOp(s)|| isVariable(s));
 }
 
 bool isEnd(std::string s)

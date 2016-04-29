@@ -13,9 +13,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        calculator.cpp parser.cpp basec.cpp tokenize.cpp validateTokens.cpp rNumber.cpp
+        calculator.cpp parser.cpp basec.cpp tokenize.cpp validateTokens.cpp rNumber.cpp log.cpp
 
-HEADERS  += calculator.h parser.h basec.h tokenize.h validateTokens.h rNumber.h decimal.h
+HEADERS  += calculator.h parser.h basec.h tokenize.h validateTokens.h rNumber.h decimal.h log.h
 
 FORMS    += calculator.ui
 

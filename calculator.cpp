@@ -12,6 +12,7 @@
 dec::decimal<8> ad(0);
 rNumber a(ad,0,false);
 rNumber b(ad,0,false);
+rNumber c(ad,0,false);
 
 Calculator::Calculator(QWidget *parent) :
     QMainWindow(parent),
@@ -53,7 +54,7 @@ void Calculator::on_lineEdit_returnPressed()
     ui->plainTextEdit->setPlainText("");
     ui->textBrowser->setText("");
 
-    ans.copy(convert(process,s,exception,a,b));
+    ans.copy(convert(process,s,exception,a,b,c));
     switch(exception)
     {
         case 0:

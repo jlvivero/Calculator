@@ -4,7 +4,12 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include "log.h"
+#include <sstream>
 
+/*******************************************************************************
+* CONSTRUCTORS
+*******************************************************************************/
 
 rNumber::rNumber()
 {
@@ -36,171 +41,73 @@ rNumber::rNumber(const rNumber & n)
     error = n.error;
 }
 
-void rNumber::reduce()
+rNumber::rNumber(std::string s)
 {
-    dec::decimal<8> temp(10);
-    dec::decimal<8> temp2(1);
-    dec::decimal<8> useless(0);
-    dec::decimal<8> temp3;
-    if(number1 == useless)
-    {
-        number2 = 0;
-        return;
-    }
-    if(number1 < useless)
-    {
-        temp3 = number1 * dec::decimal_cast<8>(-1);
-    }
-    else
-    {
-        temp3 = number1;
-    }
-    while(temp3 > temp)
-    {
-        number1 = number1 / dec::decimal_cast<8>(10);
-        temp3 = temp3/ dec::decimal_cast<8>(10);
-        number2++;
-    }
-    while(temp3 < temp2)
-    {
-        number1 = number1 * dec::decimal_cast<8>(10);
-        temp3 = temp3 * dec::decimal_cast<8>(10);
-        number2--;
-    }
-    if(number2 > 99 || number2 < -99)
-    {
-        error = true;
-    }
+    parse(s);
 }
 
-void rNumber::parseExponent(std::string s)
+/*******************************************************************************
+*                           OPERATOR OVERLOADS
+*******************************************************************************/
+rNumber rNumber::operator-()
 {
-    std::string exponentPart = "";
-    std::string decimalPart = "";
-    bool ePassed = false;
-    //parse the number, everything before the E goes to decimal, everything after goes to integer
-    for(int i = 0; i < s.size(); i++)
-    {
-        // maybe it's 'E'
-        if(s[i] == 'E')
-        {
-            ePassed = true;
-        }
-        else
-        {
-            if(ePassed)
-            {
-                exponentPart = exponentPart + s[i];
-            }
-            else
-            {
-                decimalPart = decimalPart + s[i];
-            }
-        }
-    }
-    //dec::decimal<8> dummystuff(decimalPart);
-    //idk which option is correct, test this
-    //number1 = number1->fromString(decimalPart);
-    //number1->fromString(decimalPart);
-    //number1(decimalPart);
-    //number1 = number1.fromString(decimalPart);
-    //number1 = dummystuff;
-    if(exponentPart.size() > 0)
-    {
-        dec::fromString(decimalPart,number1);
-        number2 = std::stoi(exponentPart,nullptr);
-    }
-    else
-    {
-        error = true;
-    }
-    if(number2 > 99)
-    {
-        error = true;
-    }
-    else
-    {
-        reduce();
-    }
-
+    this->negate();
+    return *this;
 }
 
-void rNumber::match(int n)
+rNumber rNumber::operator+(const rNumber &b)
 {
-    while(number2 != n)
-    {
-        number1 = number1 / dec::decimal_cast<8>(10);
-        number2++;
-    }
+    rNumber copy;
+    copy = this->add(b);
+    return copy;
 }
 
-bool rNumber::extend()
-{
-    dec::decimal<8> temp;
-    std::string hold;
-    int significantFigures;
-    while(number2 <=7 && number2 > 0)
-    {
-        number1 = number1 * dec::decimal_cast<8>(10);
-        number2--;
+rNumber rNumber::operator-(const rNumber &b) {
+    rNumber copy;
+    copy = this->substract(b);
+    return copy;
+}
+
+rNumber rNumber::operator*(const rNumber &b) {
+    rNumber copy;
+    copy = this->multiply(b);
+    return copy;
+}
+
+rNumber rNumber::operator/(const rNumber &b) {
+    rNumber copy;
+    copy = this->divide(b);
+    return copy;
+}
+
+rNumber rNumber::operator^(const rNumber &b) {
+    rNumber copy;
+    copy = this->exponent(b);
+    return copy;
+}
+
+bool rNumber::operator<(const rNumber &b) const{
+    if(this->number1 == dec::decimal_cast<8>(0)){
+        return b.number1 > dec::decimal_cast<8>(8);
     }
-    if(number2 == 0)
-    {
-        return true;
+
+    if(b.number1 == dec::decimal_cast<8>(0)){
+        return this->number1 < dec::decimal_cast<8>(0);
     }
-    if(number2 < 0)
-    {
-        temp = number1;
-        if(temp < dec::decimal_cast<8>(0))
-        {
-            //temp.toString(temp,hold);
-            dec::toString(temp,hold);
-            if(isDecimal(hold))
-            {
-                significantFigures = hold.size() - 3;
-            }
-            else
-            {
-                significantFigures = 0;
-            }
-        }
-        else
-        {
-            //temp.toString(temp,hold);
-            dec::toString(temp,hold);
-            if(isDecimal(hold))
-            {
-                significantFigures = hold.size() - 2;
-            }
-            else
-            {
-                significantFigures = 0;
-            }
-        }
-        if(significantFigures + (number2*-1) <= 8)
-        {
-            while(number2 < 0)
-            {
-                number1 = number1 / dec::decimal_cast<8>(10);
-                number2++;
-            }
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    return false;
+
+    if(this->number2 < b.number2) return true;
+    if(this->number2 > b.number2) return false;
+    return this->number1 < b.number1;
+}
+
+bool rNumber::operator==(const rNumber &b) const {
+    return this->number2 == b.number2 && this->number1 == b.number1;
 }
 
 
-
-
-bool rNumber::gerror()
-{
-    return error;
-}
+/*******************************************************************************
+*                  EXTERIOR METHODS THAT ARE COMMONLY USED
+*******************************************************************************/
 
 void rNumber::parse(std::string s)
 {
@@ -372,6 +279,37 @@ std::string rNumber::printNumber()
     }
 }
 
+bool rNumber::gerror()
+{
+    return error;
+}
+
+void rNumber::negate()
+{
+    number1 = number1 * dec::decimal_cast<8>(-1);
+}
+
+void rNumber::copy(rNumber second)
+{
+    this->number1 = second.getN1();
+    this->number2 = second.getN2();
+}
+
+dec::decimal<8> rNumber::getN1()
+{
+    return number1;
+}
+
+int rNumber::getN2()
+{
+    return number2;
+}
+
+/*******************************************************************************
+* HELPER METHODS THAT SHOULD BE USED INTERNALLY BUT I SUCK AND USE THEM
+* EXTERNALLY AS WELL
+*******************************************************************************/
+
 rNumber rNumber::add(rNumber second)
 {
     dec::decimal<8> hold;
@@ -435,11 +373,11 @@ rNumber rNumber::substract(rNumber second)
         }
         else
         {
-            if(!number2 == second.getN2())
+            if(!(number2 == second.getN2()))
                 match(second.getN2());
-            else
-            hold = number1 - second.getN1();
-            rNumber temp(hold,second.getN2());
+
+            hold = number1 - second.number1;
+            rNumber temp(hold,second.number2);
             temp.reduce();
             return temp;
         }
@@ -455,7 +393,6 @@ rNumber rNumber::multiply(rNumber second)
     return temp;
 }
 
-
 rNumber rNumber::divide(rNumber second)
 {
     dec::decimal<8> hold;
@@ -468,43 +405,316 @@ rNumber rNumber::divide(rNumber second)
 //IM A FUCKING CHITERO
 rNumber rNumber::exponent(rNumber second)
 {
-    dec::decimal<8> fuck = second.getN1();
-    double fuckMyLife = fuck.getAsDouble();
-    int absolute = second.getN2();
-    if(absolute < 0){absolute = absolute * -1;}
+    /***************************************************************************
+    *  I SUCK
+    **************************************************************************/
+    rNumber legit;
+    legit.copy(*this);
+    if(legit.number1 > dec::decimal_cast<8>(0))
+    {
+        legit = pow2(legit,second);
+        legit.reduce();
+        return legit;
+    }
+    bool notEqual = false;
+    long int bdec, adec;
+    long int bottom = 9;
+    dec::decimal<8> temp;
 
+    dec::decimal<8> rightOperand = second.number1; // this is b
+    int absolute = second.number2;// this is the number after the E of b
+    if(absolute < 0){absolute = absolute * -1;}//this is to make sure it loops well
+    //this converts both the decimal version and the double version of the number into the orignal number with E0
     for(int i = 0; i < absolute; i++)
     {
-        if(second.getN2() < 0)
-            fuckMyLife = fuckMyLife / 10;
-        else
-            fuckMyLife = fuckMyLife * 10;
+        if(second.number2 < 0){
+            //fuckMyLife = fuckMyLife / 10;
+            rightOperand = rightOperand / dec::decimal_cast<8>(10);
+        }
+        else{
+            //fuckMyLife = fuckMyLife * 10;
+            rightOperand = rightOperand * dec::decimal_cast<8>(10);
+        }
     }
+    long int beforeDecimal,afterDecimal;
+    rightOperand.unpack(beforeDecimal,afterDecimal);
+       // number to be converted to a string
+    string Result;          // string which will contain the result
+    ostringstream convert;   // stream used for the conversion
+    convert << afterDecimal;      // insert the textual representation of 'Number' in the characters in the stream
+    Result = convert.str();
+    string compare;
+    string resultletter;
+    for(int i = 0; i < Result.size(); i++)
+    {
+        if(i == 0)
+        {
+            compare = Result[i];
+        }
+        else
+        {
+            resultletter = Result[i];
+            if(compare != resultletter)
+            {
+                notEqual = true;
+            }
+        }
+    }
+    if(notEqual)
+    {
+        dec::decimal<8> temp2 = rightOperand;
+        //do code that does the .5 thing
+        temp2.unpack(bdec,adec);
+        int counter = 0;
+        while(adec > 0)
+        {
+            adec = adec / 10;
+            counter++;
+        }
+        temp2.unpack(bdec,adec);
+        bottom = 1;
+        for(int j = 0; j < counter; j++)
+        {
+            bottom = bottom * 10;
+        }
 
-    double leftOperand = number1.getAsDouble();
+        //this is simplified fraction
+        if(bdec > bottom)
+        {
+            for(int j = 2; j < bottom; j++)
+            {
+                while(bottom % j == 0 && bdec % j == 0)
+                {
+                    bdec = bdec / j;
+                    bottom = bottom / j;
+                }
+            }
+        }
+        else
+        {
+            for(int j = 2; j < bdec; j++)
+            {
+                while(bottom % j == 0 && bdec % j == 0)
+                {
+                    bdec = bdec / j;
+                    bottom = bottom / j;
+                }
+            }
+        }
+        bdec = bdec + (adec * bottom);
+        if(legit.number1 < dec::decimal_cast<8>(0))
+        {
+            if(bdec != 1)
+            {
+                temp.pack(bdec,0);
+                legit.negate();
+                legit = pow2(legit,rNumber(temp,0));
+                if(bdec % 2 == 0)
+                {
+                    legit.negate();
+                }
+            }
+        }
+        else
+        {
+            if(bdec != 1)
+            {
+                temp.pack(bdec,0);
+                legit.negate();
+                legit = pow2(legit,rNumber(temp,0));
+            }
+        }
+        if(legit.number1 < dec::decimal_cast<8>(0))
+        {
+            temp.pack(0,bottom);
+            legit.negate();
+            legit = pow2(legit,rNumber(temp,0));
+            if(bottom % 2 == 0)
+            {
+                rNumber failure(dec::decimal_cast<8>(0),0,true);
+                return failure;
+            }
+            legit.negate();
+        }
+        else
+        {
+            temp.pack(0,bottom);
+            legit = pow2(legit, rNumber(temp,0));
+        }
+    }
+    else
+    {
+        dec::decimal<8> tempx10 = rightOperand * dec::decimal_cast<8>(10);
+
+        dec::decimal<8> tempx1 = rightOperand;
+        dec::decimal<8> tempx9 = tempx10 - tempx1;
+        long int decimal, integ;
+        tempx9.unpack(integ,decimal);
+        string Result2;          // string which will contain the result
+        ostringstream convert;   // stream used for the conversion
+        convert << decimal;      // insert the textual representation of 'Number' in the characters in the stream
+        Result2 = convert.str();
+        bottom = 9;
+        if(Result2[1] == '9' && Result2[2] == '9')
+        {
+            tempx9 = tempx9 + dec::decimal_cast<8>(.01);
+        }
+        tempx9.unpack(bdec,adec);
+        //this is the code that simplifies the fraction
+        if(bdec > bottom)
+        {
+            for(int j = 2; j <= bottom; j++)
+            {
+                while(bottom % j == 0 && bdec % j == 0)
+                {
+                    bdec = bdec / j;
+                    bottom = bottom / j;
+                }
+            }
+        }
+        else
+        {
+            for(int j = 2; j <= bdec; j++)
+            {
+                while(bottom % j == 0 && bdec % j == 0)
+                {
+                    bdec = bdec / j;
+                    bottom = bottom / j;
+                }
+            }
+        }
+        if(legit.number1 < dec::decimal_cast<8>(0))
+        {
+            if(bdec != 1)
+            {
+                temp.pack(bdec,0);
+                legit.negate();
+                legit = pow2(legit,rNumber(temp,0));
+                if(bdec % 2 == 0)
+                {
+                    legit.negate();
+                }
+            }
+        }
+        else
+        {
+            if(bdec != 1)
+            {
+                temp.pack(bdec,0);
+                legit.negate();
+                legit = pow2(legit,rNumber(temp,0));
+            }
+        }
+        if(legit.number1 < dec::decimal_cast<8>(0))
+        {
+            temp.pack(0,bottom);
+            legit.negate();
+            legit = pow2(legit,rNumber(temp,0));
+            if(bottom % 2 == 0)
+            {
+                rNumber failure(dec::decimal_cast<8>(0),0,true);
+                return failure;
+            }
+            legit.negate();
+        }
+        else
+        {
+            temp.pack(0,bottom);
+            legit = pow3(legit,rNumber(temp,0));
+            //legit.negate();
+        }
+    }
+    //legit = pow2(*this,copy);
+    /*int zero = 0;
+    //this is the number of the right side of the exponenciation a^b
+    //double fuckMyLife = rightOperand.getAsDouble();// this is b for pow, not yet
+
+
+
+    //this is the number of the left side of the exponenciation a^b
+    //double leftOperand = number1.getAsDouble();//this is a for pow not yet
+
+    //this is are both a, one in rNumbers and the other in dec
+    rNumber rleftOperand(number1,number2);
+    dec::decimal<8> dleftOperand = number1;
+
+    //reusing decimal for the same purpose
     absolute = number2;
-    if(absolute < 0){ absolute = absolute * -1;}
+
+    if(absolute < 0){ absolute = absolute * -1;}//this makes sure it loops well
+    //this converts both the decimal version and the double version of the number into the orignal number with E0
     for(int i = 0; i < absolute; i++)
     {
-        if(number2 < 0)
-            leftOperand = leftOperand / 10;
-        else
-            leftOperand = leftOperand * 10;
+        if(number2 < 0){
+            //leftOperand = leftOperand / 10;
+            dleftOperand = dleftOperand / dec::decimal_cast<8>(10);
+        }
+        else{
+            //leftOperand = leftOperand * 10;
+            dleftOperand = dleftOperand * dec::decimal_cast<8>(10);
+        }
     }
-    double imCheating;
-    /*if(leftOperand == 0 && fuckMyLife == 0)
-    {
 
-        rNumber failure(dec::decimal_cast<8>(0),0,true);
+    //this is the part where i get the pow, this is where i put my conditions
+
+
+    //this is for the pow
+    double imCheating = 0;
+    //this is the number ill check on the right operand
+    //this divides the right operand into a before decimal and afterDecimal
+
+    //this packs into a new decimal number, only the number after the decimal. so it ends up being 0.wtv is left
+    dec::decimal<8> tooPac;*/
+    //simplifiedPow makes a shortcut for the decimal part of the operation
+    /*
+        example if i have 2^20.5
+        i divide this into two parts 2^20
+        and then result^0.5
+    */
+    //trying using rnumbers all the time for now
+    //if(beforeDecimal != 0)
+        //simplifiedPow(beforeDecimal,rleftOperand);
+    //simplifiedPow(beforeDecimal,dleftOperand);
+
+    /*
+
+    if(beforeDecimal != 0){
+        legit = internalPow(beforeDecimal, rleftOperand);
+        legit.reduce();
+    }
+    else{
+        zero++;
+        legit.copy(rleftOperand);
+    }
+    if(legit.number2 > 99 || legit.number2 < -99){
+        rNumber failure(dec::decimal_cast<8>(1),0,true);
         return failure;
-    }*/
-    /*if(leftOperand < 0)
+    }
+
+    //if(!(beforeDecimal < 0)){
+    //    imCheating = internalPow(beforeDecimal,dleftOperand);
+    //}
+
+    // after this comes the second part of the hard part per say
+    //now i have my number, and i only have to exponentiate by the afterDecimal
+    if(afterDecimal != 0){
+        tooPac.pack(1,afterDecimal);
+        rNumber rrightOperand(tooPac,0);
+        legit = pow2(legit,rrightOperand);
+    }
+    else{
+        zero++;
+    }
+    if(zero == 2)
     {
-        rNumber failure(dec::decimal_cast<8>(0),0,true);
-        return failure;
+        legit.parse("0");
     }*/
-    imCheating = pow(leftOperand,fuckMyLife);
-    if(std::isnan(imCheating) || std::isinf(imCheating))
+    legit.reduce();
+
+
+
+    //imCheating = pow(leftOperand,fuckMyLife);
+    /*if(std::isnan(imCheating) || std::isinf(imCheating))
     {
         if(std::isinf(imCheating))
         {
@@ -513,46 +723,258 @@ rNumber rNumber::exponent(rNumber second)
         }
         rNumber failure(dec::decimal_cast<8>(0),0,true);
         return failure;
+    }*/
+    //dec::decimal<8> mylife(imCheating);
+    //rNumber temp(mylife,0);
+    //temp.reduce();
+    //return temp;
+    return legit;
+}
+
+/*******************************************************************************
+*     INTERNAL METHODS THAT SHOULD ONLY BE CALLED FROM INSIDE THE CLASS
+*******************************************************************************/
+
+void rNumber::reduce()
+{
+    bool negative = false;
+    dec::decimal<8> temp(10);
+    dec::decimal<8> temp2(1);
+    dec::decimal<8> useless(0);
+    dec::decimal<8> temp3;
+    if(number1 == useless)
+    {
+        number2 = 0;
+        return;
     }
-    dec::decimal<8> mylife(imCheating);
-    rNumber temp(mylife,0);
-    temp.reduce();
-    return temp;
+    if(number1 < useless)
+    {
+        temp3 = number1 * dec::decimal_cast<8>(-1);
+    }
+    else
+    {
+        temp3 = number1;
+    }
+    while(temp3 > temp)
+    {
+        number1 = number1 / dec::decimal_cast<8>(10);
+        temp3 = temp3/ dec::decimal_cast<8>(10);
+        number2++;
+    }
+    while(temp3 < temp2)
+    {
+        number1 = number1 * dec::decimal_cast<8>(10);
+        temp3 = temp3 * dec::decimal_cast<8>(10);
+        number2--;
+    }
+    if(number2 > 99 || number2 < -99)
+    {
+        error = true;
+    }
 }
 
-void rNumber::negate()
+void rNumber::parseExponent(std::string s)
 {
-    number1 = number1 * dec::decimal_cast<8>(-1);
+    std::string exponentPart = "";
+    std::string decimalPart = "";
+    bool ePassed = false;
+    //parse the number, everything before the E goes to decimal, everything after goes to integer
+    for(int i = 0; i < s.size(); i++)
+    {
+        // maybe it's 'E'
+        if(s[i] == 'E')
+        {
+            ePassed = true;
+        }
+        else
+        {
+            if(ePassed)
+            {
+                exponentPart = exponentPart + s[i];
+            }
+            else
+            {
+                decimalPart = decimalPart + s[i];
+            }
+        }
+    }
+    //dec::decimal<8> dummystuff(decimalPart);
+    //idk which option is correct, test this
+    //number1 = number1->fromString(decimalPart);
+    //number1->fromString(decimalPart);
+    //number1(decimalPart);
+    //number1 = number1.fromString(decimalPart);
+    //number1 = dummystuff;
+    if(exponentPart.size() > 0)
+    {
+        dec::fromString(decimalPart,number1);
+        number2 = std::stoi(exponentPart,nullptr);
+    }
+    else
+    {
+        error = true;
+    }
+    if(number2 > 99)
+    {
+        error = true;
+    }
+    else
+    {
+        reduce();
+    }
+
 }
 
-dec::decimal<8> rNumber::getN1()
+void rNumber::match(int n)
 {
-    return number1;
+    while(number2 != n)
+    {
+        number1 = number1 / dec::decimal_cast<8>(10);
+        number2++;
+    }
 }
 
-int rNumber::getN2()
+bool rNumber::extend()
 {
-    return number2;
+    dec::decimal<8> temp;
+    std::string hold;
+    int significantFigures;
+    while(number2 <=7 && number2 > 0)
+    {
+        number1 = number1 * dec::decimal_cast<8>(10);
+        number2--;
+    }
+    if(number2 == 0)
+    {
+        return true;
+    }
+    if(number2 < 0)
+    {
+        temp = number1;
+        if(temp < dec::decimal_cast<8>(0))
+        {
+            //temp.toString(temp,hold);
+            dec::toString(temp,hold);
+            if(isDecimal(hold))
+            {
+                significantFigures = hold.size() - 3;
+            }
+            else
+            {
+                significantFigures = 0;
+            }
+        }
+        else
+        {
+            //temp.toString(temp,hold);
+            dec::toString(temp,hold);
+            if(isDecimal(hold))
+            {
+                significantFigures = hold.size() - 2;
+            }
+            else
+            {
+                significantFigures = 0;
+            }
+        }
+        if(significantFigures + (number2*-1) <= 8)
+        {
+            while(number2 < 0)
+            {
+                number1 = number1 / dec::decimal_cast<8>(10);
+                number2++;
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return false;
 }
 
-//might want to overload it so that it accepts doubles/floats/int etc.
-void rNumber::setN1(dec::decimal<8> number1)
+/*******************************************************************************
+*                 PROBABLY UNUSED METHODS, DELETE IF POSSIBLE
+*******************************************************************************/
+
+/*
+    Example of how internal pow works
+    if i have 2^20
+    i don't have to multiply 2*2 20 times
+    I can do 2*2 = 4 and divide 20 by 2
+    4^10 is the same as 2^20
+    then 16^5 = 2^20 = 4^10
+    after you finished "simplifying you can do the regular pow"
+*/
+void rNumber::simplifiedPow(long int &beforeDecimal, dec::decimal<8> &dleftOperand)
 {
-    this->number1 = number1;
-}
-//might be this->number1 = number1 anyways, it's weird idk how this class really works yet
-void rNumber::setN1(int number1)
-{
-    this->number1 = dec::decimal_cast<8>(number1);
+    while(beforeDecimal % 3 == 0)
+    {
+        beforeDecimal = beforeDecimal/3;
+        dleftOperand = dleftOperand * dleftOperand * dleftOperand;
+    }
+    while(beforeDecimal % 2 == 0)
+    {
+        beforeDecimal = beforeDecimal / 2;
+        dleftOperand = dleftOperand * dleftOperand;
+    }
 }
 
-void rNumber::setN2(int number2)
+void rNumber::simplifiedPow(long int &beforeDecimal, rNumber &rleftOperand)
 {
-    this->number2 = number2;
+    if(beforeDecimal == 0){return;}
+    while(beforeDecimal % 3 == 0)
+    {
+        beforeDecimal = beforeDecimal / 3;
+        rleftOperand = rleftOperand * rleftOperand * rleftOperand;
+    }
+    while(beforeDecimal % 2 == 0)
+    {
+        beforeDecimal = beforeDecimal / 2;
+        rleftOperand = rleftOperand * rleftOperand;
+    }
 }
 
-void rNumber::copy(rNumber second)
+double rNumber::internalPow(long long int beforeDecimal, dec::decimal<8> dleftOperand)
 {
-    this->number1 = second.getN1();
-    this->number2 = second.getN2();
+    if(beforeDecimal == 0){
+        return 1;
+    }
+    else{
+        if(beforeDecimal < 0){
+            return 1/internalPow(beforeDecimal * -1,dleftOperand);
+        }
+        else{
+            dec::decimal<8> convert(dleftOperand * dec::decimal_cast<8>(internalPow(beforeDecimal -1,dleftOperand)));
+            return convert.getAsDouble();
+        }
+    }
+}
+
+rNumber rNumber::internalPow(long long int beforeDecimal, rNumber rleftOperand)
+{
+    if(beforeDecimal == 0){
+        return rNumber(dec::decimal_cast<8>(1),0);
+    }
+    else{
+        if(beforeDecimal % 2 == 0 || beforeDecimal % 3 == 0){
+            if(beforeDecimal % 3 == 0){
+                rNumber thirdPow = internalPow(beforeDecimal / 3, rleftOperand);
+                return thirdPow * thirdPow * thirdPow;
+            }
+            else{
+                rNumber halfPow = internalPow(beforeDecimal / 2,rleftOperand);
+                return halfPow * halfPow;
+            }
+        }
+        else{
+            if(beforeDecimal < 0){
+                return rNumber(dec::decimal_cast<8>(1),0)/internalPow(beforeDecimal * -1, rleftOperand);
+            }
+            else{
+                return rleftOperand * internalPow(beforeDecimal - 1, rleftOperand);
+            }
+        }
+    }
 }

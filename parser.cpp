@@ -20,12 +20,13 @@ Exceptions:
     6 = variable not defined
 */
 
-rNumber convert(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b)
+rNumber convert(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b, rNumber & c)
 {
     //these variables will be changed to numbers probably the real numbers class ill make
     bool addToken = false;
     bool savetoA = false;
     bool savetoB = false;
+    bool savetoC = false;
     rNumber falseReturn;
     rNumber value;
     int error = 0;
@@ -53,16 +54,16 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
     int past = 0;
 
     v = regex(str);
-    int c = 0;
+    int cc = 0;
     for(int i = 0; i < v.size(); i++)
     {
         if(v[i] == "(")
-            c++;
+            cc++;
         if(v[i] == ")")
-            c--;
+            cc--;
 
     }
-    if(c!= 0)
+    if(cc!= 0)
     {
         exception = 5;
         return falseReturn;
@@ -111,7 +112,15 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                         }
                         else
                         {
-                            temp.copy(b);
+                            if(v[i+1] == "b" || v[i+1] == "B")
+                            {
+
+                                temp.copy(b);
+                            }
+                            else
+                            {
+                                temp.copy(c);
+                            }
                         }
 
                         temp.negate();
@@ -181,7 +190,14 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                     }
                     else
                     {
-                        valueStack.push(b);
+                        if(v[i] == "b" || v[i] == "B")
+                        {
+                            valueStack.push(b);
+                        }
+                        else
+                        {
+                            valueStack.push(c);
+                        }
                     }
                     past = 2;
                 }
@@ -226,12 +242,24 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                 }
                 else
                 {
-                    if(b.gerror())
+                    if(v[i] == "b" || v[i] == "B")
                     {
-                        exception = 6;
-                        return falseReturn;
+                        if(b.gerror())
+                        {
+                            exception = 6;
+                            return falseReturn;
+                        }
+                        valueStack.push(b);
                     }
-                    valueStack.push(b);
+                    else
+                    {
+                        if(c.gerror())
+                        {
+                            exception = 6;
+                            return falseReturn;
+                        }
+                        valueStack.push(c);
+                    }
                 }
                 past = 2;
             }
@@ -326,14 +354,29 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                                 }
                                 else
                                 {
-                                    if(b.gerror())
+                                    if(v[i] == "b" || v[i] == "B")
                                     {
-                                        exception = 6;
-                                        return falseReturn;
+                                        if(b.gerror())
+                                        {
+                                            exception = 6;
+                                            return falseReturn;
+                                        }
+                                        else
+                                        {
+                                            valueStack.push(b);
+                                        }
                                     }
                                     else
                                     {
-                                        valueStack.push(b);
+                                        if(c.gerror())
+                                        {
+                                            exception = 6;
+                                            return falseReturn;
+                                        }
+                                        else
+                                        {
+                                            valueStack.push(c);
+                                        }
                                     }
                                 }
                                 past = 2;
@@ -382,7 +425,14 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                     }
                     else
                     {
-                        savetoB = true;
+                        if(v[i+1] == "b" || v[i+1] == "B")
+                        {
+                            savetoB = true;
+                        }
+                        else
+                        {
+                            savetoC = true;
+                        }
                     }
                 }
                 break;
@@ -560,6 +610,8 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
         a.copy(value);
     if(savetoB)
         b.copy(value);
+    if(savetoC)
+        c.copy(value);
     return value;
 }
 
@@ -587,9 +639,7 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
             if(maxNumber.getN2() > 99 || maxNumber.getN2() < -99)
             {
                 error = 3;
-                maxNumber.setN1(0);
-                maxNumber.setN2(0);
-                return maxNumber;
+                return rNumber(dec::decimal_cast<8>(0),0);
             }
             return maxNumber;
         }
@@ -601,9 +651,7 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
             if(maxNumber.getN2() > 99 || maxNumber.getN2() < -99)
             {
                 error = 3;
-                maxNumber.setN1(0);
-                maxNumber.setN2(0);
-                return maxNumber;
+                return rNumber(dec::decimal_cast<8>(0),0);
             }
             return maxNumber;
         }
@@ -614,9 +662,7 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
             if(maxNumber.getN2() > 99 || maxNumber.getN2() < -99)
             {
                 error = 3;
-                maxNumber.setN1(0);
-                maxNumber.setN2(0);
-                return maxNumber;
+                return rNumber(dec::decimal_cast<8>(0),0);
             }
             return maxNumber;
         case '/':
@@ -626,10 +672,8 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
             //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
             if(value1.getN1() == n)
             {
-                maxNumber.setN1(0);
-                maxNumber.setN2(0);
                 error = 1;
-                return maxNumber;
+                return rNumber(dec::decimal_cast<8>(0),0);
             }
             str = number2 + "/" + number1;
             process.push_back(str);

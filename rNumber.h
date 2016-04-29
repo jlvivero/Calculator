@@ -65,11 +65,11 @@ public:
     void parseExponent(std::string s);
     void match(int n);
     bool extend();
+    std::string intToString(long int n);
+    void simplifyFraction(long int &top, long int &bottom);
+
 
     //probably unused
-    void simplifiedPow(long int &beforeDecimal, dec::decimal<8> &leftOperand);
-    void simplifiedPow(long int &beforeDecimal, rNumber &rleftOperand);
-    double internalPow(long long int beforeDecimal, dec::decimal<8> dleftOperand);
     rNumber internalPow(long long int beforeDecimal, rNumber rleftOperand);
 
 };

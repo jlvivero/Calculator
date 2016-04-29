@@ -402,27 +402,22 @@ rNumber rNumber::divide(rNumber second)
     return temp;
 }
 
+
 //IM A FUCKING CHITERO
 rNumber rNumber::exponent(rNumber second)
 {
-    /***************************************************************************
-    *  I SUCK
-    **************************************************************************/
+    //declare most variables
     rNumber legit;
-    legit.copy(*this);
-    if(legit.number1 > dec::decimal_cast<8>(0))
-    {
-        legit = pow2(legit,second);
-        legit.reduce();
-        return legit;
-    }
     bool notEqual = false;
-    long int bdec, adec;
+    long int bdec, adec, absolute;
+    long int unpacktemp, checkDecimal;
     long int bottom = 9;
-    dec::decimal<8> temp;
+    dec::decimal<8> temp, rightOperand;
 
-    dec::decimal<8> rightOperand = second.number1; // this is b
-    int absolute = second.number2;// this is the number after the E of b
+    // function does a^b legit will be a, rightOperand and absolute represent b
+    legit.copy(*this);
+    rightOperand = second.number1; // this is b
+    absolute = second.number2;// this is the number after the E of b
     if(absolute < 0){absolute = absolute * -1;}//this is to make sure it loops well
     //this converts both the decimal version and the double version of the number into the orignal number with E0
     for(int i = 0; i < absolute; i++)
@@ -436,15 +431,42 @@ rNumber rNumber::exponent(rNumber second)
             rightOperand = rightOperand * dec::decimal_cast<8>(10);
         }
     }
+    /***************************************************************************
+    *   in the format a^b, if b is not a fraction, then I have no problem and
+    *   can do the regular form of the exponents, weather a is negative or not
+    *   if b is a fraction, then i have to use logarithms and it brings problems
+    *   when a is negative
+    ***************************************************************************/
+    rightOperand.unpack(unpacktemp, checkDecimal);
+    if(checkDecimal == 0)
+    {
+        //call the regular methods
+        legit = internalPow(unpacktemp,legit);
+        legit.reduce();
+        return legit;
+    }
+
+    //if number1 is positive, then you can just cast it without any problem
+    if(legit.number1 > dec::decimal_cast<8>(0))
+    {
+        legit = pow2(legit,second);
+        legit.reduce();
+        return legit;
+    }
+
+    /***************************************************************************
+    *   this is the case where a is negative and b is a decimal number
+    ***************************************************************************/
     long int beforeDecimal,afterDecimal;
+    //unpack b
     rightOperand.unpack(beforeDecimal,afterDecimal);
-       // number to be converted to a string
-    string Result;          // string which will contain the result
-    ostringstream convert;   // stream used for the conversion
-    convert << afterDecimal;      // insert the textual representation of 'Number' in the characters in the stream
-    Result = convert.str();
-    string compare;
-    string resultletter;
+
+    //convert the decimal part into a string
+    std::string Result;
+    Result = intToString(afterDecimal);
+
+    std::string compare;
+    std::string resultletter;
     for(int i = 0; i < Result.size(); i++)
     {
         if(i == 0)
@@ -460,274 +482,136 @@ rNumber rNumber::exponent(rNumber second)
             }
         }
     }
+
+    /***************************************************************************
+    *   there are three cases of decimals that I know so far:
+    *   case one is where they have a repeating number for example .333333333
+    *   case two  is when they don't but it's a finite number for example
+    *   .5 or .23 anything of sorts.
+    *   I know of another case(3) that i have not encountered, for example
+    *   .2323232323, repeats infinitely but with more than one number.
+    ***************************************************************************/
+
+    //if notEqual is true it means it's the second case
     if(notEqual)
     {
         dec::decimal<8> temp2 = rightOperand;
-        //do code that does the .5 thing
+        //temp2 is b
         temp2.unpack(bdec,adec);
         int counter = 0;
+        //this counts how many decimals are in place
         while(adec > 0)
         {
             adec = adec / 10;
             counter++;
         }
+        //counter = 1
         temp2.unpack(bdec,adec);
         bottom = 1;
         for(int j = 0; j < counter; j++)
         {
             bottom = bottom * 10;
         }
+        //from here i have a fraction adec/bottom with bdec as the whole number
+        //i add the whole number here and get adec / bottom
+        adec = adec + (bdec * bottom);
+        simplifyFraction(adec,bottom);
 
-        //this is simplified fraction
-        if(bdec > bottom)
+        //number1 is always negative in this scenario
+        if(adec != 1)
         {
-            for(int j = 2; j < bottom; j++)
-            {
-                while(bottom % j == 0 && bdec % j == 0)
-                {
-                    bdec = bdec / j;
-                    bottom = bottom / j;
-                }
-            }
-        }
-        else
-        {
-            for(int j = 2; j < bdec; j++)
-            {
-                while(bottom % j == 0 && bdec % j == 0)
-                {
-                    bdec = bdec / j;
-                    bottom = bottom / j;
-                }
-            }
-        }
-        bdec = bdec + (adec * bottom);
-        if(legit.number1 < dec::decimal_cast<8>(0))
-        {
-            if(bdec != 1)
-            {
-                temp.pack(bdec,0);
-                legit.negate();
-                legit = pow2(legit,rNumber(temp,0));
-                if(bdec % 2 == 0)
-                {
-                    legit.negate();
-                }
-            }
-        }
-        else
-        {
-            if(bdec != 1)
-            {
-                temp.pack(bdec,0);
-                legit.negate();
-                legit = pow2(legit,rNumber(temp,0));
-            }
-        }
-        if(legit.number1 < dec::decimal_cast<8>(0))
-        {
-            temp.pack(0,bottom);
-            legit.negate();
+            temp.pack(adec,0);
+            legit.negate(); //turns into positive
             legit = pow2(legit,rNumber(temp,0));
+            if(adec % 2 != 0)
+            {
+                //if the b is not even then you turn it back to negative
+                legit.negate();
+            }
+        }
+        //in here you do not know if it's negative all the time
+        if(legit.number1 < dec::decimal_cast<8>(0))
+        {
+            //if it's negative
             if(bottom % 2 == 0)
             {
+                //if a is a negative number, and b is even on and a square
+                //then it's a failure
                 rNumber failure(dec::decimal_cast<8>(0),0,true);
                 return failure;
             }
+            dec::decimal<8> divisor(bottom);
+            temp = dec::decimal_cast<8>(1) / divisor;
+            legit.negate(); // turns into positive
+            legit = pow2(legit,rNumber(temp,0));
             legit.negate();
         }
         else
         {
-            temp.pack(0,bottom);
+            dec::decimal<8> divisor(bottom);
+            temp = dec::decimal_cast<8>(1) / divisor;
             legit = pow2(legit, rNumber(temp,0));
         }
     }
     else
     {
         dec::decimal<8> tempx10 = rightOperand * dec::decimal_cast<8>(10);
-
         dec::decimal<8> tempx1 = rightOperand;
         dec::decimal<8> tempx9 = tempx10 - tempx1;
+
         long int decimal, integ;
         tempx9.unpack(integ,decimal);
-        string Result2;          // string which will contain the result
-        ostringstream convert;   // stream used for the conversion
-        convert << decimal;      // insert the textual representation of 'Number' in the characters in the stream
-        Result2 = convert.str();
+
+        //now checks if there's a bunch of 9999
+        std::string Result2;          // string which will contain the result
+        Result2 = intToString(decimal);
+
         bottom = 9;
         if(Result2[1] == '9' && Result2[2] == '9')
         {
             tempx9 = tempx9 + dec::decimal_cast<8>(.01);
         }
+
         tempx9.unpack(bdec,adec);
-        //this is the code that simplifies the fraction
-        if(bdec > bottom)
+        //i get fraction bdec / bottom
+        simplifyFraction(bdec,bottom);
+
+        //we already know it's a negative number
+        if(bdec != 1)
         {
-            for(int j = 2; j <= bottom; j++)
-            {
-                while(bottom % j == 0 && bdec % j == 0)
-                {
-                    bdec = bdec / j;
-                    bottom = bottom / j;
-                }
-            }
-        }
-        else
-        {
-            for(int j = 2; j <= bdec; j++)
-            {
-                while(bottom % j == 0 && bdec % j == 0)
-                {
-                    bdec = bdec / j;
-                    bottom = bottom / j;
-                }
-            }
-        }
-        if(legit.number1 < dec::decimal_cast<8>(0))
-        {
-            if(bdec != 1)
-            {
-                temp.pack(bdec,0);
-                legit.negate();
-                legit = pow2(legit,rNumber(temp,0));
-                if(bdec % 2 == 0)
-                {
-                    legit.negate();
-                }
-            }
-        }
-        else
-        {
-            if(bdec != 1)
-            {
-                temp.pack(bdec,0);
-                legit.negate();
-                legit = pow2(legit,rNumber(temp,0));
-            }
-        }
-        if(legit.number1 < dec::decimal_cast<8>(0))
-        {
-            temp.pack(0,bottom);
-            legit.negate();
+            temp.pack(bdec,0);
+            legit.negate(); // turns it into positive number
             legit = pow2(legit,rNumber(temp,0));
+            if(bdec % 2 != 0)
+            {
+                //if the b is not even then you turn it back to negative
+                legit.negate();
+            }
+        }
+
+        //in here you do not know if it's negative all the time
+        if(legit.number1 < dec::decimal_cast<8>(0))
+        {
             if(bottom % 2 == 0)
             {
                 rNumber failure(dec::decimal_cast<8>(0),0,true);
                 return failure;
             }
+            dec::decimal<8> divisor(bottom);
+            temp = dec::decimal_cast<8>(1) / divisor;
+            legit.negate(); // turns it into a positive number
+            legit = pow2(legit,rNumber(temp,0));
             legit.negate();
         }
         else
         {
-            temp.pack(0,bottom);
-            legit = pow3(legit,rNumber(temp,0));
-            //legit.negate();
-        }
-    }
-    //legit = pow2(*this,copy);
-    /*int zero = 0;
-    //this is the number of the right side of the exponenciation a^b
-    //double fuckMyLife = rightOperand.getAsDouble();// this is b for pow, not yet
-
-
-
-    //this is the number of the left side of the exponenciation a^b
-    //double leftOperand = number1.getAsDouble();//this is a for pow not yet
-
-    //this is are both a, one in rNumbers and the other in dec
-    rNumber rleftOperand(number1,number2);
-    dec::decimal<8> dleftOperand = number1;
-
-    //reusing decimal for the same purpose
-    absolute = number2;
-
-    if(absolute < 0){ absolute = absolute * -1;}//this makes sure it loops well
-    //this converts both the decimal version and the double version of the number into the orignal number with E0
-    for(int i = 0; i < absolute; i++)
-    {
-        if(number2 < 0){
-            //leftOperand = leftOperand / 10;
-            dleftOperand = dleftOperand / dec::decimal_cast<8>(10);
-        }
-        else{
-            //leftOperand = leftOperand * 10;
-            dleftOperand = dleftOperand * dec::decimal_cast<8>(10);
+            dec::decimal<8> divisor(bottom);
+            temp = dec::decimal_cast<8>(1) / divisor;
+            legit = pow2(legit, rNumber(temp,0));
         }
     }
 
-    //this is the part where i get the pow, this is where i put my conditions
-
-
-    //this is for the pow
-    double imCheating = 0;
-    //this is the number ill check on the right operand
-    //this divides the right operand into a before decimal and afterDecimal
-
-    //this packs into a new decimal number, only the number after the decimal. so it ends up being 0.wtv is left
-    dec::decimal<8> tooPac;*/
-    //simplifiedPow makes a shortcut for the decimal part of the operation
-    /*
-        example if i have 2^20.5
-        i divide this into two parts 2^20
-        and then result^0.5
-    */
-    //trying using rnumbers all the time for now
-    //if(beforeDecimal != 0)
-        //simplifiedPow(beforeDecimal,rleftOperand);
-    //simplifiedPow(beforeDecimal,dleftOperand);
-
-    /*
-
-    if(beforeDecimal != 0){
-        legit = internalPow(beforeDecimal, rleftOperand);
-        legit.reduce();
-    }
-    else{
-        zero++;
-        legit.copy(rleftOperand);
-    }
-    if(legit.number2 > 99 || legit.number2 < -99){
-        rNumber failure(dec::decimal_cast<8>(1),0,true);
-        return failure;
-    }
-
-    //if(!(beforeDecimal < 0)){
-    //    imCheating = internalPow(beforeDecimal,dleftOperand);
-    //}
-
-    // after this comes the second part of the hard part per say
-    //now i have my number, and i only have to exponentiate by the afterDecimal
-    if(afterDecimal != 0){
-        tooPac.pack(1,afterDecimal);
-        rNumber rrightOperand(tooPac,0);
-        legit = pow2(legit,rrightOperand);
-    }
-    else{
-        zero++;
-    }
-    if(zero == 2)
-    {
-        legit.parse("0");
-    }*/
     legit.reduce();
-
-
-
-    //imCheating = pow(leftOperand,fuckMyLife);
-    /*if(std::isnan(imCheating) || std::isinf(imCheating))
-    {
-        if(std::isinf(imCheating))
-        {
-            rNumber failure(dec::decimal_cast<8>(1),0,true);
-            return failure;
-        }
-        rNumber failure(dec::decimal_cast<8>(0),0,true);
-        return failure;
-    }*/
-    //dec::decimal<8> mylife(imCheating);
-    //rNumber temp(mylife,0);
-    //temp.reduce();
-    //return temp;
     return legit;
 }
 
@@ -894,63 +778,42 @@ bool rNumber::extend()
     return false;
 }
 
+std::string rNumber::intToString(long int n)
+{
+    ostringstream convert;   // stream used for the conversion
+    convert << n;      // insert the textual representation of
+    return convert.str();
+}
+
+void rNumber::simplifyFraction(long int & top, long int & bottom)
+{
+    if(top > bottom)
+    {
+        for(int j = 2; j <= bottom; j++)
+        {
+            while(bottom % j == 0 && top % j == 0)
+            {
+                top = top / j;
+                bottom = bottom / j;
+            }
+        }
+    }
+    else
+    {
+        for(int j = 2; j <= top; j++)
+        {
+            while(bottom % j == 0 && top % j == 0)
+            {
+                top = top / j;
+                bottom = bottom / j;
+            }
+        }
+    }
+}
+
 /*******************************************************************************
 *                 PROBABLY UNUSED METHODS, DELETE IF POSSIBLE
 *******************************************************************************/
-
-/*
-    Example of how internal pow works
-    if i have 2^20
-    i don't have to multiply 2*2 20 times
-    I can do 2*2 = 4 and divide 20 by 2
-    4^10 is the same as 2^20
-    then 16^5 = 2^20 = 4^10
-    after you finished "simplifying you can do the regular pow"
-*/
-void rNumber::simplifiedPow(long int &beforeDecimal, dec::decimal<8> &dleftOperand)
-{
-    while(beforeDecimal % 3 == 0)
-    {
-        beforeDecimal = beforeDecimal/3;
-        dleftOperand = dleftOperand * dleftOperand * dleftOperand;
-    }
-    while(beforeDecimal % 2 == 0)
-    {
-        beforeDecimal = beforeDecimal / 2;
-        dleftOperand = dleftOperand * dleftOperand;
-    }
-}
-
-void rNumber::simplifiedPow(long int &beforeDecimal, rNumber &rleftOperand)
-{
-    if(beforeDecimal == 0){return;}
-    while(beforeDecimal % 3 == 0)
-    {
-        beforeDecimal = beforeDecimal / 3;
-        rleftOperand = rleftOperand * rleftOperand * rleftOperand;
-    }
-    while(beforeDecimal % 2 == 0)
-    {
-        beforeDecimal = beforeDecimal / 2;
-        rleftOperand = rleftOperand * rleftOperand;
-    }
-}
-
-double rNumber::internalPow(long long int beforeDecimal, dec::decimal<8> dleftOperand)
-{
-    if(beforeDecimal == 0){
-        return 1;
-    }
-    else{
-        if(beforeDecimal < 0){
-            return 1/internalPow(beforeDecimal * -1,dleftOperand);
-        }
-        else{
-            dec::decimal<8> convert(dleftOperand * dec::decimal_cast<8>(internalPow(beforeDecimal -1,dleftOperand)));
-            return convert.getAsDouble();
-        }
-    }
-}
 
 rNumber rNumber::internalPow(long long int beforeDecimal, rNumber rleftOperand)
 {

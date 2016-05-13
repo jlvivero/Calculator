@@ -34,8 +34,6 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
     char pastOp;
     rNumber val1;
     rNumber val2;
-    //rnumber a*;
-    //rnumber b*;
     std::stack<rNumber> valueStack;
     std::stack<std::string> opStack;
     std::string token;

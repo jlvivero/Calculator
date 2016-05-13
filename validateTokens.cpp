@@ -2,6 +2,7 @@
 #include <regex>
 #include <iostream>
 #include <string>
+#include <QString>
 
 bool isrNumber(std::string s)
 {
@@ -41,4 +42,10 @@ bool noMatch(std::string s)
 bool isEnd(std::string s)
 {
     return std::regex_match(s,std::regex("="));
+}
+
+bool isif(const QString & s)
+{
+    std::string str = s.toStdString();
+    return std::regex_match(str,std::regex("(i|I)(f|F)(\\d)*(\\D)*"));
 }

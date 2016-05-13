@@ -3,7 +3,7 @@
 #include "parser.h"
 #include "basec.h"
 #include "decimal.h"
-//#include "rNumber.h"
+#include "validateTokens.h"
 
 
 #include <QRegExp>
@@ -53,11 +53,17 @@ void Calculator::on_lineEdit_returnPressed()
     std::vector<QString> process;
     ui->plainTextEdit->setPlainText("");
     ui->textBrowser->setText("");
-
-    ans.copy(convert(process,s,exception,a,b,c));
-    switch(exception)
+    if(isif(s))
     {
-        case 0:
+        ui->textBrowser->setText("SI ES UN IF");
+        //and.copy(convertif(process,s,exception,a,b,c));
+    }
+    else
+    {
+        ans.copy(convert(process,s,exception,a,b,c));
+        switch(exception)
+        {
+            case 0:
             for(size_t i = 0; i < process.size(); i++)
             {
                 answer = answer + process[i] + "\n";
@@ -70,24 +76,25 @@ void Calculator::on_lineEdit_returnPressed()
             ui->textBrowser->setText(answer);
             ui->plainTextEdit->setPlainText(ans.printNumber().c_str());
             break;
-        case 1:
+            case 1:
             ui->textBrowser->setText("Divided by 0, big nono");
             break;
-        case 2:
+            case 2:
             ui->textBrowser->setText("square root of a negative number, big nono");
             break;
-        case 3:
+            case 3:
             ui->textBrowser->setText("Integer overflow");
             break;
-        case 4:
+            case 4:
             ui->textBrowser->setText("Syntax error");
             break;
-        case 5:
+            case 5:
             ui->textBrowser->setText("unmatched parenthesis");
             break;
-        case 6:
+            case 6:
             ui->textBrowser->setText("variable not defined");
             break;
+        }
     }
     /*
     //TODO: change the regular expression so that the string is only changed to string + =, do this after initial testing

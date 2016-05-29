@@ -22,7 +22,6 @@ Exceptions:
 */
 rNumber convertIf(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b, rNumber & c)
 {
-    //DONE:20 implement the convertIf function more instructions below
     /*
         the Qstring s is gonna be tokenized into the following tokens:
             - Keyword
@@ -85,7 +84,6 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
         }
         else
         {
-            //DONE:140 implement what happens when it's a [anything block]
             // use the keyword values to direct the flow
             switch (keyword)
             {
@@ -93,10 +91,8 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
                     exception = 4;
                     return falseReturn;
                     //this means an error return an error
-                    //DONE:160 return an error
                     break;
                 case 1:
-                    //DONE:40 implement parseCondition, must return a bool
                     token = v[i];
                     token.erase(token.begin());
                     token.erase(token.end()-1);
@@ -113,14 +109,11 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
                     {
                         if(!condition)
                         {
-                            //DONE:150 make it so that "[" and "]" get removed then parse the function again
-
                             //might have to include the iterator header
                             token = v[i];
                             token.erase(token.begin());
                             token.erase(token.end()-1);
                             token2 = QString::fromStdString(token);
-                            //DONE:130 convert token into a Qstring and pass it to token2
                             return prepareForParse(process, token2, exception, a, b , c);
                         }
                     }
@@ -130,8 +123,6 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
                     {
                         if(condition)
                         {
-                            //DONE:120 remove '[' and ']' from token
-
                             //might have to include the iterator header
                             token = v[i];
                             token.erase(token.begin());
@@ -192,7 +183,6 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
 
 bool parseCondition(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b, rNumber & c)
 {
-    //DONE:100 tokenize parse condition more information below
     /*
         It will basically divide the tokens into two parts
             -Keywords:
@@ -228,9 +218,8 @@ bool parseCondition(std::vector<QString> & process, const QString & s, int& exce
             6: <>
     */
     int operation = 0;
-
-    //DONE:60 make sure the flow of the function works well and validate that only three tokens should exist at any given time
     int t = 0;
+
     for(int j = 0; j < v.size(); j++)
     {
         if(v[j] != "")
@@ -240,7 +229,6 @@ bool parseCondition(std::vector<QString> & process, const QString & s, int& exce
     }
     if(t != 3)
     {
-        //DONE:70 return an error and false here
         //make sure it sends the error up and breaks the whole opperation
         exception = 4;
         return false;
@@ -251,7 +239,6 @@ bool parseCondition(std::vector<QString> & process, const QString & s, int& exce
         {
             continue;
         }
-        //DONE:80 add validation methods for the different tokens
         if(opBool(v[i]))
         {
             opUsed = true;
@@ -283,7 +270,6 @@ bool parseCondition(std::vector<QString> & process, const QString & s, int& exce
         }
         else
         {
-            //DONE:50 call method that will solve for a value
             //this part can only be a regular operation but without the = at the end
             //This is what i have to modify on the convert method ;_; i don't want to ._____.
             if(!opUsed)
@@ -315,7 +301,6 @@ bool parseCondition(std::vector<QString> & process, const QString & s, int& exce
                     case 6:
                         return !(left == right);
                     default:
-                        //DONE:30 call error here
                         exception = 4;
                         return false;
                         break;
@@ -334,8 +319,6 @@ rNumber format(std::vector<QString> & process, const QString & s, int & exceptio
 
   */
 }
-
-//DONE:0 change convert so that it doesn't need the = at the end and put it on another method
 
 rNumber convert(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b, rNumber & c)
 {
@@ -356,7 +339,6 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
     std::string token;
     std::string pastToken;
     std::string str = s.toStdString();
-    //TODO: implement removeRoot funtion
     //the removeRoot function will find out every substring that fits the format
     // root(rNumber) and transform it into rNumber^(1/2)
     // and root(rNumber,rNumber2) into rNumber2^(1/rNumber)
@@ -923,7 +905,6 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
 
 rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QString> & process, int & error)
 {
-    //DONE:200 validate that the operations are viable
     QString str;
     std::string tmp;
     tmp = value1.printNumber();
@@ -973,7 +954,6 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
         case '/':
         {
             dec::decimal<8> n(0);
-            //DONE:180 VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
             //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
             if(value1.getN1() == n)
             {
@@ -995,7 +975,6 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
         case '^':
         {
             //dec::decimal<8> n(0);
-            //DONE:170 VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
             //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
             str = number2 + "^" + number1;
             process.push_back(str);

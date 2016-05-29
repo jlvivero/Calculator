@@ -55,7 +55,6 @@ bool isif(std::string s)
 
 bool isKeyword(std::string s)
 {
-    //DONE:190 implement regex function or bool validation for a keyword on an if
     return keywordif(s) || keywordAND(s) || keywordOR(s) || keywordelse(s) || keywordthen(s);
 }
 
@@ -92,7 +91,6 @@ bool keywordthen(std::string s)
 bool opBool(std::string s)
 {
     //returns true if it's a bool
-    //DONE:90 implement regex function or bool validation for boolean conditions
     return opEquals(s) || opLessThan(s) || opMoreThan(s) || opLessOrEqual(s) || opMoreOrEqual(s) || opDifferent(s);
 }
 

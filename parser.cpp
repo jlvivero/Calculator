@@ -356,6 +356,12 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
     std::string token;
     std::string pastToken;
     std::string str = s.toStdString();
+    //TODO: implement removeRoot funtion
+    //the removeRoot function will find out every substring that fits the format
+    // root(rNumber) and transform it into rNumber^(1/2)
+    // and root(rNumber,rNumber2) into rNumber2^(1/rNumber)
+    // in the second case rNumber must be made into a a whole number no decimals
+    str = removeRoot(str);
     std::vector<std::string> v;
     /*
         gonna use past to tell what token came before the other one

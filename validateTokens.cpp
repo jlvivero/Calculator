@@ -54,7 +54,7 @@ bool isif(const QString & s)
 
 bool isKeyword(std::string s)
 {
-    //DONE:70 implement regex function or bool validation for a keyword on an if
+    //DONE:110 implement regex function or bool validation for a keyword on an if
     return keywordif(s) || keywordAND(s) || keywordOR(s) || keywordelse(s) || keywordthen(s);
 }
 
@@ -88,7 +88,41 @@ bool keywordthen(std::string s)
     return std::regex_match(s,std::regex("then|THEN"));
 }
 
-//TODO:50 do the regex match for the format thing
+bool opBool(std::string s)
+{
+    //returns true if it's a bool
+    //DONE:10 implement regex function or bool validation for boolean conditions
+    return opEquals(s) || opLessThan(s) || opMoreThan(s) || opLessOrEqual(s) || opMoreOrEqual(s);
+}
+
+bool opEquals(std::string s)
+{
+    return std::regex_match(s,std::regex("="));
+}
+
+bool opLessThan(std::string s)
+{
+    return std::regex_match(s,std::regex("<"));
+}
+
+bool opMoreThan(std::string s)
+{
+    return std::regex_match(s,std::regex(">"));
+}
+
+bool opLessOrEqual(std::string s)
+{
+    return std::regex_match(s,std::regex("<="));
+}
+
+bool opMoreOrEqual(std::string s)
+{
+    return std::regex_match(s,std::regex(">="));
+}
+
+
+
+//TODO:10 do the regex match for the format thing
 bool isFormat(const QString & s)
 {
   return false;

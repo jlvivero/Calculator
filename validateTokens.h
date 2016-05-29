@@ -15,6 +15,17 @@ bool isVariable(std::string s);
 bool noMatch(std::string s);
 bool isEnd(std::string s);
 bool isif(const QString & s);
+bool isKeyword(std::string s);
+bool keywordif(std::string s);
+bool keywordAND(std::string s);
+bool keywordOR(std::string s);
+bool keywordelse(std::string s);
+bool keywordthen(std::string s);
+bool opBool(std::string s);
+bool opLessThan(std::string s);
+bool opMoreThan(std::string s);
+bool opLessOrEqual(std::string s);
+bool opMoreOrEqual(std::string s);
 bool isFormat(const QString & s);
 
 #endif

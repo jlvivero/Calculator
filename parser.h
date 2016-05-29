@@ -14,4 +14,7 @@ rNumber convert(std::vector<QString> & process, const QString & s, int & excepti
 rNumber format(std::vector<QString> & process, const QString & s, int & exception, rNumber &a, rNumber & b, rNumber & c);
 rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QString> & process, int & error);
 
+//might have to add like all the things instead of just the string, we'll see
+bool parseCondition(std::string s);
+
 #endif

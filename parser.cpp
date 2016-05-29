@@ -2,6 +2,7 @@
 #include "tokenize.h"
 #include "validateTokens.h"
 #include "rNumber.h"
+#include "helper.h"
 
 #include <iostream>
 #include <stack>
@@ -21,7 +22,7 @@ Exceptions:
 */
 rNumber convertIf(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b, rNumber & c)
 {
-    //DOING:0 implement the convertIf function more instructions below
+    //DOING:10 implement the convertIf function more instructions below
     /*
         the Qstring s is gonna be tokenized into the following tokens:
             - Keyword
@@ -83,17 +84,7 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
         }
         else
         {
-            /*
-            Exceptions:
-                0 = no problem everything went alright
-                1 = divided by 0, big nono
-                2 = square root of a negative number big nono
-                3 = integer overflow
-                4 = syntax error
-                5 = unmatched parenthesis
-                6 = variable not defined
-            */
-            //DONE:10 implement what happens when it's a [anything block]
+            //DONE:60 implement what happens when it's a [anything block]
             // use the keyword values to direct the flow
             switch (keyword)
             {
@@ -101,10 +92,10 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
                     exception = 4;
                     return falseReturn;
                     //this means an error return an error
-                    //DONE:40 return an error
+                    //DONE:80 return an error
                     break;
                 case 1:
-                    //TODO:10 implement parseCondition, must return a bool
+                    //DOING:0 implement parseCondition, must return a bool
                     condition = parseCondition(v[i]);
                     conditionAnswered = true;
                 case 2:
@@ -112,11 +103,13 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
                     {
                         if(!condition)
                         {
-                            //DONE:30 make it so that "[" and "]" get removed then parse the function again
-                            //TODO:30 same as case 3
-                            token = removeEdges(v[i]);
+                            //DONE:70 make it so that "[" and "]" get removed then parse the function again
+
+                            //might have to include the iterator header
+                            token.erase(str.begin());
+                            token.erase(str.end());
                             QString token2 = QString::fromStdString(token);
-                            //DONE:0 convert token into a Qstring and pass it to token2
+                            //DONE:50 convert token into a Qstring and pass it to token2
                             return prepareForParse(process, token2, exception, a, b , c);
                         }
                     }
@@ -126,11 +119,12 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
                     {
                         if(condition)
                         {
-                            //DONE:20 same as case 2
-                            //TODO:0 implement removeEdges
-                            token = removeEdges(v[i]);
+                            //DONE:40 remove '[' and ']' from token
+
+                            //might have to include the iterator header
+                            token.erase(str.begin());
+                            token.erase(str.end());
                             QString token2 = QString::fromStdString(token);
-                            //TODO:20 same as case 2
                             return prepareForParse(process, token2, exception, a, b , c);
                         }
                     }
@@ -165,13 +159,82 @@ rNumber convertIf(std::vector<QString> & process, const QString & s, int& except
             }
         }
     }
+}
+
+bool parseCondition(std::string s)
+{
+    //DONE:20 tokenize parse condition more information below
+    /*
+        It will basically divide the tokens into two parts
+            -Keywords:
+                - = : meaning equals to
+                - < : less than
+                - > : more than
+                - <>: not equals
+                - <=: less or equals than
+                - >=: more or equals than
+            -Ecuation: Anything that i already have, might have to modify
+            some stuff first which sucks cause i don't want to touch
+            the original code because it sucks
+        So in the end it will end up like this:
+        Ecuation Keyword Ecuation I will solve, both ecuation and compare them
+        There will always be three tokens, otherwise throw a syntax error
+    */
+    std::vector<std::string> v;
+    v = regexCondition(s);
+    /*
+        operation can have the following values:
+            0: invalid token
+            1: =
+            2: <
+            3: >
+            4: <=
+            5: >=
+    */
+    int operation = 0;
+
+    //TODO:20 make sure the flow of the function works well and validate that only three tokens should exist at any given time
+    for(int i = 0; i < v.size(); i++)
+    {
+        //DONE:0 add validation methods for the different tokens
+        if(opBool(v[i]))
+        {
+            //this means the keyword was acceptable!
+            if(opEquals(v[i]))
+            {
+                keyword = 1;
+            }
+            if(opLessThan(v[i]))
+            {
+                keyword = 2;
+            }
+            if(opMoreThan(v[i]))
+            {
+                keyword = 3;
+            }
+            if(opLessOrEqual(v[i]))
+            {
+                keyword = 4;
+            }
+            if(opMoreOrEqual(v[i]))
+            {
+                keyword = 5;
+            }
+        }
+        else
+        {
+            //TODO:0 call method that will solve for a value
+        }
+
+    }
+
 
 
 }
 
 rNumber format(std::vector<QString> & process, const QString & s, int & exception, rNumber & a, rNumber & b, rNumber & c)
 {
-  //TODO:40 implement the format change function, more instructions below
+  //TODO:30 implement the format change function, more instructions below
   /*
 
   */
@@ -757,7 +820,7 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
 
 rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QString> & process, int & error)
 {
-    //DONE:80 validate that the operations are viable
+    //DONE:120 validate that the operations are viable
     QString str;
     std::string tmp;
     tmp = value1.printNumber();
@@ -807,7 +870,7 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
         case '/':
         {
             dec::decimal<8> n(0);
-            //DONE:60 VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
+            //DONE:100 VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
             //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
             if(value1.getN1() == n)
             {
@@ -829,7 +892,7 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
         case '^':
         {
             //dec::decimal<8> n(0);
-            //DONE:50 VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
+            //DONE:90 VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
             //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
             str = number2 + "^" + number1;
             process.push_back(str);

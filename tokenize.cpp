@@ -23,12 +23,28 @@ std::vector<std::string> regex(const std::string & infix_op)
 
 std::vector<std::string> regexIf(const std::string & infix_op)
 {
-    //DOING:10 add the correct regex string for this part
-    std::regex tokenize("[a-zA-Z]+ | \\[.*\\]");
+    //DOING:20 add the correct regex string for this part
+    std::regex tokenize("[a-zA-Z]+|\\[.*\\]");
     auto words_begin = std::regex_iterator(infix_op.begin(), infix_op.end(), tokenize);
     auto words_end = std::sregex_iterator();
     std::vector<std::string> v;
     for(auto i = words_begin; i != words_end; ++i)
+    {
+        std::smatch match = *i;
+        std::string match_str = match.str();
+        v.push_back(match_str);
+    }
+    return v;
+}
+
+std::vector<std::string> regexCondition(const std::string & infix_op)
+{
+    //DONE:30 add the correct regex string for conditions
+    std::regex tokenize("[a-zA-Z]+|=|<|>|<>|<=|>=");
+    auto words_begin = std::regex_iterator(infix_op.begin(), infix_op.end(), tokenize);
+    auto words_end = std::sregex_iterator();
+    std::vector<std::string> v;
+    for(auto i = words_begin; i != words_end; i++)
     {
         std::smatch match = *i;
         std::string match_str = match.str();

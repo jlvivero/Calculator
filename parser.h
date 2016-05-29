@@ -15,6 +15,6 @@ rNumber format(std::vector<QString> & process, const QString & s, int & exceptio
 rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QString> & process, int & error);
 
 //might have to add like all the things instead of just the string, we'll see
-bool parseCondition(std::string s);
+bool parseCondition(std::vector<QString> & process, const QString & s, int & exception, rNumber & a, rNumber & b, rNumber & c);
 
 #endif

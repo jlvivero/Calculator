@@ -1,5 +1,7 @@
 #include "functionSelect.h"
 #include "rNumber.h"
+#include "validateTokens.h"
+#include "parser.h"
 
 #include <vector>
 #include <QString>
@@ -31,7 +33,7 @@ rNumber prepareForParse(std::vector<QString> &process, const QString &s, int &ex
     }
     else
     {
-      if(isFormat(str))
+      if(isFormat(s))
       {
         return format(process, s, exception, a, b, c);
       }

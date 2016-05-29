@@ -4,6 +4,7 @@
 #include "basec.h"
 #include "decimal.h"
 #include "validateTokens.h"
+#include "functionSelect.h"
 
 
 #include <QRegExp>

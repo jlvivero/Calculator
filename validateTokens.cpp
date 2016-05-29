@@ -44,17 +44,18 @@ bool isEnd(std::string s)
     return std::regex_match(s,std::regex("="));
 }
 
-bool isif(const QString & s)
+bool isif(std::string s)
 {
-    std::string str = s.toStdString();
+    //std::string str = s.toStdString();
     //this returns true if the format of the string is if[whatever] THEN[WTV] ELSE[wtv] or if[wtv]AND[WTV]THEN[wtv]ELSE[wtv]
     //what will go inside of those wtv, is ecuations which i already covered, and conditions which i will cover soon
-    return std::regex_match(str,std::regex("(i|I)(f|F)\\[.*\\]((AND|OR)\\[.*\\])*THEN\\[.*\\]ELSE\\[.*\\]";
+    return std::regex_match(s,std::regex("(if|IF)\\[.*\\]((AND|OR)\\[.*\\])*(THEN|then)\\[.*\\]((ELSE|else)\\[.*\\])*"));
+    // std::regex_match(s,std::regex("(if|IF)\\[.*\\]((AND|OR)\\[.*\\])*THEN\\[.*\\]ELSE\\[.*\\]"));
 }
 
 bool isKeyword(std::string s)
 {
-    //DONE:180 implement regex function or bool validation for a keyword on an if
+    //DONE:190 implement regex function or bool validation for a keyword on an if
     return keywordif(s) || keywordAND(s) || keywordOR(s) || keywordelse(s) || keywordthen(s);
 }
 
@@ -91,7 +92,7 @@ bool keywordthen(std::string s)
 bool opBool(std::string s)
 {
     //returns true if it's a bool
-    //DONE:80 implement regex function or bool validation for boolean conditions
+    //DONE:90 implement regex function or bool validation for boolean conditions
     return opEquals(s) || opLessThan(s) || opMoreThan(s) || opLessOrEqual(s) || opMoreOrEqual(s) || opDifferent(s);
 }
 
@@ -125,7 +126,7 @@ bool opDifferent(std::string s)
     return std::regex_match(s,std::regex("<>"));
 }
 
-//TODO:30 do the regex match for the format thing
+//TODO:20 do the regex match for the format thing
 bool isFormat(const QString & s)
 {
   return false;

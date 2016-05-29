@@ -23,7 +23,8 @@ std::vector<std::string> regex(const std::string & infix_op)
 
 std::vector<std::string> regexIf(const std::string & infix_op)
 {
-    //DOING:20 add the correct regex string for this part
+    //DONE:0 add the correct regex string for this part
+    //i hope it's correct
     std::regex tokenize("[a-zA-Z]+|\\[.*\\]");
     auto words_begin = std::regex_iterator(infix_op.begin(), infix_op.end(), tokenize);
     auto words_end = std::sregex_iterator();
@@ -39,7 +40,7 @@ std::vector<std::string> regexIf(const std::string & infix_op)
 
 std::vector<std::string> regexCondition(const std::string & infix_op)
 {
-    //DONE:30 add the correct regex string for conditions
+    //DONE:100 add the correct regex string for conditions
     std::regex tokenize("[a-zA-Z]+|=|<|>|<>|<=|>=");
     auto words_begin = std::regex_iterator(infix_op.begin(), infix_op.end(), tokenize);
     auto words_end = std::sregex_iterator();

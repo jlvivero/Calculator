@@ -26,6 +26,7 @@ bool opLessThan(std::string s);
 bool opMoreThan(std::string s);
 bool opLessOrEqual(std::string s);
 bool opMoreOrEqual(std::string s);
+bool opDifferent(std::string s);
 bool isFormat(const QString & s);
 
 #endif

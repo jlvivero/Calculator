@@ -69,7 +69,7 @@ std::string removeRoot(std::string s)
             //this will tokenize whatever is inside the []
             if(v.size() == 1)
             {
-                wordNew = v[0] + "^(1/2)";
+                wordNew = "(("+ v[0] + ")^(1/2)" + ")";
             }
             else
             {
@@ -88,3 +88,7 @@ std::string removeRoot(std::string s)
 //root[2,10*10]
 //2;,;10*10
 //(10*10)^(1/(2))
+//(7*100/root(4))
+//(;7;*;100;/;root(4);)
+//root(10-3)
+//10-3

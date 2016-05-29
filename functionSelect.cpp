@@ -44,3 +44,51 @@ rNumber prepareForParse(std::vector<QString> &process, const QString &s, int &ex
       }
     }
 }
+
+//IM REALLY NOT SURE THIS SHOULD BE HERE BUT IMA DO IT FOR NOW HERE SO I DON'T
+//HAVE TO MAKE A NEW CPP FILE
+std::string removeRoot(std::string s)
+{
+    std::vector<std::string> v;
+    std::vector<std::string> u;
+    //v = regexRoot(s);
+    u = regexRoot(s);
+    //this will tokenize everything and have root[] as a token
+    std::string token;
+    std::string wordNew = "";
+    std::string newString = "";
+    //this will give you every instance of root[anything] in a vector
+    for(int j = 0; j < u.size(); j++)
+    {
+        if(isRoot(u[j]))
+        {
+            token = u[j];
+            token.erase(0,5);
+            token.erase(token.end()-1);
+            v = regexRoot2(token);
+            //this will tokenize whatever is inside the []
+            if(v.size() == 1)
+            {
+                wordNew = "(("+ v[0] + ")^(1/2)" + ")";
+            }
+            else
+            {
+                wordNew = "(" + v[2] + ")^(1/" + v[0] + ")";
+            }
+            u[j] = wordNew;
+        }
+    }
+    for(int j = 0; j < u.size(); j++)
+    {
+        newString = newString + u[j];
+    }
+    return newString;
+}
+//root[2,10*10]=
+//root[2,10*10]
+//2;,;10*10
+//(10*10)^(1/(2))
+//(7*100/root(4))
+//(;7;*;100;/;root(4);)
+//root(10-3)
+//10-3

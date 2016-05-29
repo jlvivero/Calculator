@@ -126,6 +126,11 @@ bool opDifferent(std::string s)
     return std::regex_match(s,std::regex("<>"));
 }
 
+bool isRoot(std::string s)
+{
+    return std::regex_match(s,std::regex("(root|ROOT)\\((.+)\\)"));
+}
+
 //TODO:20 do the regex match for the format thing
 bool isFormat(const QString & s)
 {

@@ -5,4 +5,6 @@
 std::vector<std::string> regex(const std::string & infix_op);
 std::vector<std::string> regexIf(const std::string & infix_op);
 std::vector<std::string> regexCondition(const std::string & infix_op);
+std::vector<std::string> regexRoot2(const std::string & infix_op);
+std::vector<std::string> regexRoot(const std::string & infix_op);
 #endif

@@ -2,6 +2,7 @@
 #include "tokenize.h"
 #include "validateTokens.h"
 #include "rNumber.h"
+#include "functionSelect.h"
 
 #include <iostream>
 #include <stack>
@@ -19,6 +20,322 @@ Exceptions:
     5 = unmatched parenthesis
     6 = variable not defined
 */
+rNumber convertIf(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b, rNumber & c)
+{
+    //DONE:20 implement the convertIf function more instructions below
+    /*
+        the Qstring s is gonna be tokenized into the following tokens:
+            - Keyword
+            - [Anything]
+            - After that, the [Anything] will be divided into:
+                - [boleanFunction]
+                - [NormalFunction]
+                - [IfFunction]
+        Once everything is tokenized the program will redirect depending on
+        what type of cuntion is inside
+        boolean functions will have it's own parser,
+        normal functions are already implemented and will call the convert func*
+        if function will call this function recursively
+    */
+    QString token2;
+    rNumber falseReturn;
+    std::string str = s.toStdString();
+    std::vector<std::string> v;
+    //this tokenizes the function
+    v = regexIf(str);
+    /*
+        keyword can have the following values:
+            0: invalid token
+            1: if
+            2: else
+            3: then
+            4: AND
+            5: or
+    */
+    int keyword = 0;
+    bool condition;
+    bool conditionAnswered = false;
+    std::string token;
+
+    for(int i = 0; i < v.size(); i++)
+    {
+        if(isKeyword(v[i]))
+        {
+            //this means the keyword was acceptable!
+            if(keywordif(v[i]))
+            {
+                keyword = 1;
+            }
+            if(keywordelse(v[i]))
+            {
+                keyword = 2;
+            }
+            if(keywordthen(v[i]))
+            {
+                keyword = 3;
+            }
+            if(keywordAND(v[i]))
+            {
+                keyword = 4;
+            }
+            if(keywordOR(v[i]))
+            {
+                keyword = 5;
+            }
+        }
+        else
+        {
+            //DONE:140 implement what happens when it's a [anything block]
+            // use the keyword values to direct the flow
+            switch (keyword)
+            {
+                case 0:
+                    exception = 4;
+                    return falseReturn;
+                    //this means an error return an error
+                    //DONE:160 return an error
+                    break;
+                case 1:
+                    //DONE:40 implement parseCondition, must return a bool
+                    token = v[i];
+                    token.erase(token.begin());
+                    token.erase(token.end()-1);
+                    token2 = QString::fromStdString(token);
+                    condition = parseCondition(process, token2, exception, a, b, c);
+                    if(exception == 4)
+                    {
+                        return falseReturn;
+                    }
+                    conditionAnswered = true;
+                    break;
+                case 2:
+                    if(conditionAnswered)
+                    {
+                        if(!condition)
+                        {
+                            //DONE:150 make it so that "[" and "]" get removed then parse the function again
+
+                            //might have to include the iterator header
+                            token = v[i];
+                            token.erase(token.begin());
+                            token.erase(token.end()-1);
+                            token2 = QString::fromStdString(token);
+                            //DONE:130 convert token into a Qstring and pass it to token2
+                            return prepareForParse(process, token2, exception, a, b , c);
+                        }
+                    }
+                    break;
+                case 3:
+                    if(conditionAnswered)
+                    {
+                        if(condition)
+                        {
+                            //DONE:120 remove '[' and ']' from token
+
+                            //might have to include the iterator header
+                            token = v[i];
+                            token.erase(token.begin());
+                            token.erase(token.end()-1);
+                            token2 = QString::fromStdString(token);
+                            return prepareForParse(process, token2, exception, a, b , c);
+                        }
+                    }
+                    break;
+                case 4:
+                    if(conditionAnswered)
+                    {
+                        if(condition)
+                        {
+                            token = v[i];
+                            token.erase(token.begin());
+                            token.erase(token.end()-1);
+                            token2 = QString::fromStdString(token);
+                            //If condition is true, it will check that both are true
+                            condition = condition && parseCondition(process, token2, exception, a, b, c);
+                            if(exception == 4)
+                            {
+                                return falseReturn;
+                            }
+                        }
+                        //if condition is false it won't do check it, everything is false
+                    }
+                    break;
+                case 5:
+                    if(conditionAnswered)
+                    {
+                        if(!condition)
+                        {
+                            token = v[i];
+                            token.erase(token.begin());
+                            token.erase(token.end()-1);
+                            token2 = QString::fromStdString(token);
+                            //if condition is false it will check if either of them are true
+                            condition = condition || parseCondition(process, token2, exception, a, b, c);
+                            if(exception == 4)
+                            {
+                                return falseReturn;
+                            }
+                        }
+                        //if condition is true then it won't check the answer is true
+                    }
+                    break;
+                default:
+                    exception = 4;
+                    return falseReturn;
+                    //this means an error return an error
+                    break;
+            }
+        }
+    }
+    return rNumber(dec::decimal_cast<8>(0),0);
+}
+
+bool parseCondition(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b, rNumber & c)
+{
+    //DONE:100 tokenize parse condition more information below
+    /*
+        It will basically divide the tokens into two parts
+            -Keywords:
+                - = : meaning equals to
+                - < : less than
+                - > : more than
+                - <>: not equals
+                - <=: less or equals than
+                - >=: more or equals than
+            -Ecuation: Anything that i already have, might have to modify
+            some stuff first which sucks cause i don't want to touch
+            the original code because it sucks
+        So in the end it will end up like this:
+        Ecuation Keyword Ecuation I will solve, both ecuation and compare them
+        There will always be three tokens, otherwise throw a syntax error
+    */
+    bool opUsed = false;
+    std::string str = s.toStdString();
+    rNumber left;
+    rNumber right;
+    std::vector<std::string> v;
+    std::string token;
+    QString token2;
+    v = regexCondition(str);
+    /*
+        operation can have the following values:
+            0: invalid token
+            1: =
+            2: <
+            3: >
+            4: <=
+            5: >=
+            6: <>
+    */
+    int operation = 0;
+
+    //DONE:60 make sure the flow of the function works well and validate that only three tokens should exist at any given time
+    int t = 0;
+    for(int j = 0; j < v.size(); j++)
+    {
+        if(v[j] != "")
+        {
+            t++;
+        }
+    }
+    if(t != 3)
+    {
+        //DONE:70 return an error and false here
+        //make sure it sends the error up and breaks the whole opperation
+        exception = 4;
+        return false;
+    }
+    for(int i = 0; i < v.size(); i++)
+    {
+        if(v[i] == "")
+        {
+            continue;
+        }
+        //DONE:80 add validation methods for the different tokens
+        if(opBool(v[i]))
+        {
+            opUsed = true;
+            //this means the keyword was acceptable!
+            if(opEquals(v[i]))
+            {
+                operation = 1;
+            }
+            if(opLessThan(v[i]))
+            {
+                operation = 2;
+            }
+            if(opMoreThan(v[i]))
+            {
+                operation = 3;
+            }
+            if(opLessOrEqual(v[i]))
+            {
+                operation = 4;
+            }
+            if(opMoreOrEqual(v[i]))
+            {
+                operation = 5;
+            }
+            if(opDifferent(v[i]))
+            {
+                operation = 6;
+            }
+        }
+        else
+        {
+            //DONE:50 call method that will solve for a value
+            //this part can only be a regular operation but without the = at the end
+            //This is what i have to modify on the convert method ;_; i don't want to ._____.
+            if(!opUsed)
+            {
+                //TODO:0 maybe validate if an exception happened
+                //it might not be necessary because if it throws an exception it will go all the way up and throw it on calculator.cpp, but it might be better to make sure and validate every step of the way
+                token = v[i];
+                token2 = QString::fromStdString(token);
+                left = convert(process,token2,exception,a,b,c);
+            }
+            else
+            {
+                //TODO:10 maybe validate the same thing as the if above
+                token = v[i];
+                token2 = QString::fromStdString(token);
+                right = convert(process,token2,exception,a,b,c);
+                switch (operation)
+                {
+                    case 1:
+                        return left == right;
+                    case 2:
+                        return left < right;
+                    case 3:
+                        return left > right;
+                    case 4:
+                        return left <= right;
+                    case 5:
+                        return left >= right;
+                    case 6:
+                        return !(left == right);
+                    default:
+                        //DONE:30 call error here
+                        exception = 4;
+                        return false;
+                        break;
+                }
+            }
+
+        }
+
+    }
+}
+
+rNumber format(std::vector<QString> & process, const QString & s, int & exception, rNumber & a, rNumber & b, rNumber & c)
+{
+  //TODO:30 implement the format change function, more instructions below
+  /*
+
+  */
+}
+
+//DONE:0 change convert so that it doesn't need the = at the end and put it on another method
 
 rNumber convert(std::vector<QString> & process, const QString & s, int& exception, rNumber & a, rNumber & b, rNumber & c)
 {
@@ -34,8 +351,6 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
     char pastOp;
     rNumber val1;
     rNumber val2;
-    //rnumber a*;
-    //rnumber b*;
     std::stack<rNumber> valueStack;
     std::stack<std::string> opStack;
     std::string token;
@@ -53,15 +368,18 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
     */
     int past = 0;
 
+    //this splits the string into tokens
     v = regex(str);
+
+
     int cc = 0;
+    //this counts that all the parenthesis are matched
     for(int i = 0; i < v.size(); i++)
     {
         if(v[i] == "(")
             cc++;
         if(v[i] == ")")
             cc--;
-
     }
     if(cc!= 0)
     {
@@ -82,23 +400,6 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                     token = v[i];
                     thisOp = token[0];
                     past = 3;
-                    /*
-                    token = v[i+1];
-                    value.parse(token);
-                    value.negate();
-                    if(!value.gerror())
-                    {
-                        valueStack.push(value);
-                        past = 1;
-                        i++;
-                    }
-                    else
-                    {
-                        exception = 4;
-                        return falseReturn;
-                    }*/
-
-                    //insert in stack
                 }
                 else
                 {
@@ -573,8 +874,6 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
                 past = 3;
                 opStack.push(token);
                 default:
-                /*size_t equals = str.find_first_of("=");
-                str.erase(equals);*/
                 break;//special case
             }
             addToken = false;
@@ -618,7 +917,7 @@ rNumber convert(std::vector<QString> & process, const QString & s, int& exceptio
 
 rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QString> & process, int & error)
 {
-    //TODO: validate that the operations are viable
+    //DONE:200 validate that the operations are viable
     QString str;
     std::string tmp;
     tmp = value1.printNumber();
@@ -668,7 +967,7 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
         case '/':
         {
             dec::decimal<8> n(0);
-            //TODO: VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
+            //DONE:180 VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
             //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
             if(value1.getN1() == n)
             {
@@ -690,7 +989,7 @@ rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QS
         case '^':
         {
             //dec::decimal<8> n(0);
-            //TODO: VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
+            //DONE:170 VALIDATE THAT IF IT'S DIVIDED BY 0, THROW AN EXCEPTION
             //HOWTO? PUT A TOKEN ON EVALUATE, AND MAKE IT BE CHECKED AFTER EACH EVALUATION, IF THE TOKEN IS TRUE RETURN ERROR
             str = number2 + "^" + number1;
             process.push_back(str);

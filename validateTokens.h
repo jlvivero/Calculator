@@ -15,5 +15,6 @@ bool isVariable(std::string s);
 bool noMatch(std::string s);
 bool isEnd(std::string s);
 bool isif(const QString & s);
+bool isFormat(const QString & s);
 
 #endif

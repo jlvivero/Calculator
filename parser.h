@@ -9,8 +9,9 @@
 #include <stack>
 #include <string>
 
+rNumber convertIf(std::vector<QString> & process, const QString & s, int & exception, rNumber & a, rNumber & b, rNumber & c);
 rNumber convert(std::vector<QString> & process, const QString & s, int & exception, rNumber & a, rNumber & b, rNumber & c);
-rNumber convertif(std::vector<QString> & process, const QString & s, int & exception, rNumber & a, rNumber & b, rNumber & c);
+rNumber format(std::vector<QString> & process, const QString & s, int & exception, rNumber &a, rNumber & b, rNumber & c);
 rNumber evaluate(rNumber value1, rNumber value2, const char & op, std::vector<QString> & process, int & error);
 
 #endif

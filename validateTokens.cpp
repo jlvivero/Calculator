@@ -47,5 +47,49 @@ bool isEnd(std::string s)
 bool isif(const QString & s)
 {
     std::string str = s.toStdString();
-    return std::regex_match(str,std::regex("(i|I)(f|F)(\\d)*(\\D)*"));
+    //this returns true if the format of the string is if[whatever] THEN[WTV] ELSE[wtv] or if[wtv]AND[WTV]THEN[wtv]ELSE[wtv]
+    //what will go inside of those wtv, is ecuations which i already covered, and conditions which i will cover soon
+    return std::regex_match(str,std::regex("(i|I)(f|F)\\[.*\\]((AND|OR)\\[.*\\])*THEN\\[.*\\]ELSE\\[.*\\]";
+}
+
+bool isKeyword(std::string s)
+{
+    //DONE:70 implement regex function or bool validation for a keyword on an if
+    return keywordif(s) || keywordAND(s) || keywordOR(s) || keywordelse(s) || keywordthen(s);
+}
+
+bool keywordif(std::string s)
+{
+    //returns true if the keyword is IF or if
+    return std::regex_match(s,std::regex("if|IF"));
+}
+
+bool keywordAND(std::string s)
+{
+    //returns true if the keyword is AND
+    return std::regex_match(s,std::regex("AND"));
+}
+
+bool keywordOR(std::string s)
+{
+    //returns true if the keyword is OR
+    return std::regex_match(s,std::regex("OR"));
+}
+
+bool keywordelse(std::string s)
+{
+    //returns true if they keyword is else or ELSE
+    return std::regex_match(s,std::regex("ELSE|else"));
+}
+
+bool keywordthen(std::string s)
+{
+    //returns true if the keyword is then or THEN
+    return std::regex_match(s,std::regex("then|THEN"));
+}
+
+//TODO:50 do the regex match for the format thing
+bool isFormat(const QString & s)
+{
+  return false;
 }

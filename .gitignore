@@ -35,3 +35,6 @@ Makefile*
 
 #ignore a folder
 TESTS
+
+#ignore .imdone stuff
+/.imdone

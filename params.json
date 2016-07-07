@@ -1,0 +1,6 @@
+{
+  "name": "Calculator",
+  "tagline": "A calculator for our automatas class",
+  "body": "# Calculator\r\nA calculator for Automatas class\r\n\r\nAn implementation of a calculator using Shunting-yard algorithm.  \r\nThe purpose of this proyect is to learn how to design a language,  in this case a simple language that only accepts arithmetic operations and simple functions is a great setpping stone to prepare us for compilers class next semester\r\n\r\nUpdate: Most of the modules are finished\r\nIt has decimal, and scientific notation support\r\nThere are still a few bugs left to iron out, but overall it works\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
